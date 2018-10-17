@@ -155,8 +155,7 @@ void setup() {
    Serial.begin(115200);
   // POWER SETUP
    pow_init();
-   Timer3.initialize();
-   Timer3.attachInterrupt(updatePower);
+
   //
 
   // COMM SETUP

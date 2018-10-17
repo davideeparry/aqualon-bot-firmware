@@ -14,8 +14,8 @@ void pow_init()
     //memset(&readings, 0, sizeof(readings)*POWER_NUM_READINGS);
     ina219.begin();
     update_rate_ms = POWER_DEFAULT_UPDATE_RATE_MS;
-
-    // Attach interrupt timer
+    Timer3.initialize();
+    Timer3.attachInterrupt(pow_isr);
 }
 
 struct power_reading get_reading()
