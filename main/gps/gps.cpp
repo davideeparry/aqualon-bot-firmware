@@ -20,3 +20,4 @@ void gpsInit() {
    Timer1.initialize(500000);
    Timer1.attachInterrupt(updateGPS);
 }
+
