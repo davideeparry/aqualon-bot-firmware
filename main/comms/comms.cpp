@@ -1,4 +1,5 @@
 #include "comms.h"
+#include "messageHandler.h"
 
 void commsInit() {
    commPort.begin(9600);
@@ -45,8 +46,14 @@ void readSerial(char recBuffer[recBufferSize], int &index) {
     if (recBuffer[i] == '\0') {
         // A nice pretty non-segmented message came in
         // pass to message handler
+        if (messageHandler(string str(recBuffer))) {
+            transmissionSuccess("getUuidFromMsg(string str(recBuffer))");
+        } else {
+            transmissionError(transmissionErrorUnknownMsg); // might want uuid here
+        }
     } else if (i == numQueued) {
         // We've read in the whole buffer and still didn't get a cap to our message assume it is segmented
+        // WANT A CALLBACK HERE SO WE WAIT A LITTLE BIT
         readSerial(recBuffer, i);
     } else {
         // We hit our size limit, which is terrible will call a transmission error
@@ -54,3 +61,6 @@ void readSerial(char recBuffer[recBufferSize], int &index) {
     }
 }
 
+void transmissionSuccess(string uuid) {
+    commPort.print("Message was successful");
+}

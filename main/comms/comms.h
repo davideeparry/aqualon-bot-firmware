@@ -10,3 +10,5 @@ void recTransmission();
 void transmissionError(string errorMsg);
 void sendTransmission(string msg);
 void readSerial(char recBuffer[recBufferSize], int &index);
+
+void transmissionSuccess(string uuid);
