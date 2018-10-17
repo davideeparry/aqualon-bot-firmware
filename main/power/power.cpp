@@ -1,5 +1,6 @@
 
 #include "power.h"
+#include <TimerThree.h>
 
 static Adafruit_INA219 ina219;
 static unsigned update_rate_ms;
