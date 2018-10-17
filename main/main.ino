@@ -5,26 +5,11 @@ rom #include "libraries/I2Cdev.h"
 // POWER HEADERS
 #include <TimerThree.h>
 #include "power/power.h"
-float v_avg;
-float i_avg;
-struct power_reading reading;
-
-// COMM HEADERS
-#define INTERRUPT_PIN_COMM 
-#define commPort Serial4
+#include "gps/gps.h"
+#include "comms/comms.h"
 
 
 
-// GPS HEADERS
-#include <TimerOne.h>
-#include <TinyGPS.h>
-#include <SoftwareSerial.h>
-TinyGPS gps;
-#define gpsPort Serial2
-char buf[32];
-float flat, flon;
-unsigned long age;
-//
 
 // MOTOR HEADERS
 int left = 0;
@@ -70,53 +55,6 @@ volatile bool mpuInterrupt = false;     // indicates whether MPU interrupt pin h
 // ===                      INITIAL SETUP                       ===
 // ================================================================
 
-
-
-
-void updatePower() {
-    power_reading reading = get_reading();   // Get the most recent reading, or a new one if it's stale
-    v_avg = pow_get_avg_voltage(10);  // Get mean of last 10 readings
-    i_avg = pow_get_avg_current(10);
-
-    Serial.print("Time:    "); Serial.println(reading.time);
-    Serial.print("Voltage: "); Serial.print(reading.V); Serial.print("  Avg:   "); Serial.println(v_avg);
-    Serial.print("Current: "); Serial.print(reading.I); Serial.print("  Avg:   "); Serial.println(i_avg);
-    Serial.println(" ");
-}
-
-void tranmissionReady() {
-   char recBuffer[60];
-   Serial.println("Start interrupt:");
-   int numQueued = Serial4.available();
-   if (numQueued == 0) {
-    Serial.println("ERROR: No serial data avaliable from Serial4 on transmission interrupt.");
-   } else if (numQueued > 60) {
-    Serial.println("ERROR: recBuffer overflow!");
-    // WANT TO REFACTOR THE WHOLE SERIAL READ CODE SO THAT THE CODE CAN BE LOOPED HERE UNTIL THE 
-    // QUEUE IS EMPTY
-   } else {
-     int i = 0;
-     for (i=0; i < numQueued; i++) {
-      recBuffer[i] = Serial4.read();
-      if (recBuffer[i] == '\0') {
-        break;
-      }
-     }
-     if (recBuffer[i] != '\0') {
-      Serial.println("ERROR: incomplete transmission received!");
-      Serial4.print("Transmission failed.");
-      Serial4.flush();
-     } else {
-      Serial.print("The received message was: ");
-      Serial.println(recBuffer);
-      Serial4.print("Transmission received.");
-      Serial4.flush();
-     }
-   }
-}
- 
-
-
 void dmpDataReady() {
     mpuIntStatus = mpu.getIntStatus();
 
@@ -153,15 +91,11 @@ void dmpDataReady() {
 }
 void setup() {
    Serial.begin(115200);
-  // POWER SETUP
    pow_init();
 
-  //
 
   // COMM SETUP
-   Serial4.begin(9600);
-   pinMode(INTERRUPT_PIN_COMM, INPUT); 
-   attachInterrupt(digitalPinToInterrupt(12), tranmissionReady, RISING); 
+   commInit();
    //
 
 
