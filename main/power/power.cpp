@@ -8,7 +8,7 @@ static struct power_reading readings[POWER_NUM_READINGS];
 static unsigned current_index = 0;
 static unsigned power_timer = 0;
 
-void pow_init() 
+void powInit() 
 {
     // Zero the readings
     //memset(&readings, 0, sizeof(readings)*POWER_NUM_READINGS);

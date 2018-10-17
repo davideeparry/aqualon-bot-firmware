@@ -15,7 +15,7 @@ void updateGPS() {  // GPS TX/RX are plugged into Serial2
   }
 }
 
-void setupGPS() {
+void gpsInit() {
    Serial2.begin(9600);
    Timer1.initialize(500000);
    Timer1.attachInterrupt(updateGPS);

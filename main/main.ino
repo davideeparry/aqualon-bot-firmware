@@ -23,12 +23,10 @@ int l_direction = 5;
 
 void setup() {
    Serial.begin(115200);
-   pow_init();
-
-
-  // COMM SETUP
+   powInit();
    commInit();
-   //
+   gpsInit();
+   mpuInit();
 
 
 

@@ -28,7 +28,7 @@ struct power_reading
 /*
  * Initialization. Must be called in setup(). 
  */
-void pow_init();
+void powInit();
 
 struct power_reading get_reading();
 

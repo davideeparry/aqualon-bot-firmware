@@ -7,7 +7,7 @@ float flat, flon;
 unsigned long age;
 
 // Setup Routine
-void setupGPS();
+void gpsInit();
 
 // Interrupt Routine
 void updateGPS();

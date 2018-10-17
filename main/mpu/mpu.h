@@ -29,3 +29,6 @@ float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gra
 // ================================================================
 
 volatile bool mpuInterrupt = false;     // indicates whether MPU interrupt pin has gone high
+
+void mpuISR();
+void mpuInit();
