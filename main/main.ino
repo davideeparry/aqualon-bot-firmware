@@ -1,10 +1,10 @@
-rom #include "I2Cdev.h"
+rom #include "libraries/I2Cdev.h"
 
-#include "MPU6050_6Axis_MotionApps20.h"
+#include "libraries/MPU6050_6Axis_MotionApps20.h"
 #include <Wire.h>
 // POWER HEADERS
 #include <TimerThree.h>
-#include "power.h"
+#include "power/power.h"
 float v_avg;
 float i_avg;
 struct power_reading reading;
@@ -116,33 +116,6 @@ void tranmissionReady() {
 }
  
 
-void updateGPS() {  // NEEDS TO BE CLEANED UP AS THE NEWDATA FLAG DOES NOT GET SET 
-  bool newData = false;
-  while (gpsPort.available()) {
-      char c = gpsPort.read();
-      gps.encode(c);
-      if (gps.encode(c)) {// Did a new valid sentence come in?
-        newData = true;
-      }
-  }
-  if (newData) {
-     Serial.println("GPS Encoding finished.");
-     gps.f_get_position(&flat, &flon, &age);     
-  }
-}
-    
-   
-
- /* EXAMPLES OF GPS VARIABLES  
-  float f_altitude();
-  float f_course();
-  float f_speed_knots();
-  float f_speed_mph();
-  float f_speed_mps();
-  float f_speed_kmph();
-     */
-  
-}
 
 void dmpDataReady() {
     mpuIntStatus = mpu.getIntStatus();
@@ -192,11 +165,7 @@ void setup() {
    attachInterrupt(digitalPinToInterrupt(12), tranmissionReady, RISING); 
    //
 
-   // GPS SETUP
-   gpsPort.begin(9600);
-   Timer1.initialize(500000);
-   Timer1.attachInterrupt(updateGPS);
-  //
+
 
   // MOTOR SETUP
   pinMode(l_direction, OUTPUT);
@@ -254,6 +223,3 @@ void loop() {
         
        
     
-
-
-
