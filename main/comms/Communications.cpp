@@ -1,10 +1,11 @@
 #include "Communications.h"
 
 
-void Communications::init() {
-   serialPort.begin(9600);
-   pinMode(interruptPin, INPUT); 
-   attachInterrupt(digitalPinToInterrupt(interruptPin), receiveMsg, RISING); 
+void Communications::init(StateService &state) {
+    stateService = &state;
+    serialPort.begin(9600);
+    pinMode(interruptPin, INPUT); 
+    attachInterrupt(digitalPinToInterrupt(interruptPin), receiveMsg, RISING); 
 }
 
 

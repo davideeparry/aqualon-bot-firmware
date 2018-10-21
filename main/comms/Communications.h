@@ -3,6 +3,7 @@
 #include "../msgs/messageHandler.h"
 #include "../msgs/message.h"
 #include "../msgs/errorStrings.h"
+#include "../state/StateService.h"
 
 class Communications
 {
@@ -10,10 +11,11 @@ class Communications
     Serial4 serialPort;
     const int interruptPin = 12;
     ErrorStrings errorStrings;
+    StateService* stateService;
 
     public:
     int getMaxSerialMsgSize();
-    void init();
+    void init(StateService &stateService);
     void receiveMsg();
     void sendError(string errorMsg);
     void sendMessage(message msg);
