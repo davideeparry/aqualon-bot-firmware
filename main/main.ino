@@ -11,8 +11,9 @@ void setup() {
    Serial.begin(115200);
    Wire.begin();
    Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having compilation difficulties
+   Communications communications;
+   communications.init();
    powInit();
-   commInit();
    gpsInit();
    mpuInit();
 }
