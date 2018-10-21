@@ -13,8 +13,7 @@ class message
         double getDoubleFromKey(string key);
         string getStringFromKey(string key);
         message getMsgFromKey(string key); // So we can store recursive structures
-        char* getSerialBuffer(); // Turn back into a byte buffer for transmission
-        
+        char* getSerialBuffer(); // Turn back into a byte buffer for transmission     
 };
 
 #endif
