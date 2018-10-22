@@ -1,29 +1,31 @@
-#include "mpu.h"
+#include "Mpu.h"
+#include "MpuISR.h"
 
-void mpuInit() {
+void Mpu::init(StateService &state) {
+    stateService = &state;
     mpu.initialize();
-  pinMode(INTERRUPT_PIN_MPU, INPUT); 
-  devStatus = mpu.dmpInitialize();
-  // supply your own gyro offsets here, scaled for min sensitivity
-  mpu.setXGyroOffset(220);
-  mpu.setYGyroOffset(76);
-  mpu.setZGyroOffset(-85);
-  mpu.setZAccelOffset(1788); // 1688 factory default for my test chip
-  if (devStatus == 0) {
-      mpu.setDMPEnabled(true);
-      attachInterrupt(digitalPinToInterrupt(INTERRUPT_PIN_MPU), mpuISR, RISING);
-      mpuIntStatus = mpu.getIntStatus();
-      dmpReady = true;
-      packetSize = mpu.dmpGetFIFOPacketSize();
-  } else {
-      Serial.print(F("DMP Initialization failed (code "));
-      Serial.print(devStatus);
-      Serial.println(F(")"));
-  }
+    pinMode(interruptPin, INPUT); 
+    devStatus = mpu.dmpInitialize();
+    // supply your own gyro offsets here, scaled for min sensitivity
+    mpu.setXGyroOffset(220);
+    mpu.setYGyroOffset(76);
+    mpu.setZGyroOffset(-85);
+    mpu.setZAccelOffset(1788); // 1688 factory default for my test chip
+    if (devStatus == 0) {
+        mpu.setDMPEnabled(true);
+        attachInterrupt(digitalPinToInterrupt(interruptPin), mpuISRWrapper, RISING);
+        mpuIntStatus = mpu.getIntStatus();
+        dmpReady = true;
+        packetSize = mpu.dmpGetFIFOPacketSize();
+    } else {
+        Serial.print(F("DMP Initialization failed (code "));
+        Serial.print(devStatus);
+        Serial.println(F(")"));
+    }
 }
 
-void mpuISR() {
-      mpuIntStatus = mpu.getIntStatus();
+void Mpu::isr() {
+    mpuIntStatus = mpu.getIntStatus();
 
     // get current FIFO count
     fifoCount = mpu.getFIFOCount();

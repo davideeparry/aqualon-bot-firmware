@@ -22,6 +22,7 @@ void setup() {
    communications.init(stateService); // this is a service design pattern
    gps.init(stateService);
    motors.init(stateService);
+   mpu.init(stateService);
    //mpuInit();
 }
 
