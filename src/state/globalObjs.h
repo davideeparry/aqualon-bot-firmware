@@ -4,6 +4,7 @@
 #include "../gps/Gps.h"
 Communications communications;
 Gps gps;
+Motors motors;
 StateService stateService;
 
 #endif

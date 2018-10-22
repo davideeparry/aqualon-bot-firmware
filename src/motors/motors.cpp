@@ -1,11 +1,12 @@
-#include "motors.h"
+#include "Motors.h"
 
-void motorsInit() {
+void Motors::init(StateService &state) {
+    stateService = &state;
     pinMode(l_direction, OUTPUT);
     pinMode(r_direction, OUTPUT);
 }
 
-void motorsLoop() {
+void Motors::loop() {
      if (left == 0) {
     analogWrite(l_speed, 0);
   } else if (left == -1) {

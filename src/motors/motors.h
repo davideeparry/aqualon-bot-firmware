@@ -1,10 +1,20 @@
-int left = 0;
-int right = 0;
-int l_speed = 2;
-int r_speed = 3;
-int r_direction = 4;
-int l_direction = 5;
+#ifndef MOTORS
+#define MOTORS
+#include "../state/StateService.h"
 
-void motorsInit();
+class Motors {
+    // Might want to publish to state service so will add it but nothing is being published to it atm
+    StateService* stateService;
+    int left = 0;
+    int right = 0;
+    int l_speed = 2;
+    int r_speed = 3;
+    int r_direction = 4;
+    int l_direction = 5;
+    public:
+    void init(StateService &stateService);
 
-void motorsLoop();
+    void loop();
+};
+
+#endif

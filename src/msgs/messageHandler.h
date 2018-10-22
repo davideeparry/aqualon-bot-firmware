@@ -1,3 +1,3 @@
-bool messageHandler(string msg);
+bool messageHandler(String msg);
 
 // NOT YET IMPLEMENTED
