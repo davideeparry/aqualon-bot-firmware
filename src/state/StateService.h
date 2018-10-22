@@ -2,6 +2,7 @@
 #define STATE
 
 class StateService {
+    public:
     // NO REAL THOUGHT IS PUT INTO WHAT THESE ACTUALLY ARE YET, JUST QUICK FROM THE EXISTING ISRs + SOME IMAGINATION
     // There are better ways to do this where we split these catagories up into classes themselves but w/e
     // NOTICE THESE ARE ALL CURRENTLY PUBLIC
@@ -33,13 +34,15 @@ class StateService {
     double imuRoll;
 
     // gps
-    string gpsStatus;
+    String gpsStatus;
     int gpsSatellites;
     double gpsHeading;
     double gpsVelocity;
-    double gpsDecimalDegrees;
+    double gpsLat;
+    double gpsLong;
+    double gpsAge;
     // 
-    string navigationMode;
+    String navigationMode;
     double navigationDestinationDecimalDegrees;
 
     StateService(); // this constructor will be quite complicated as it needs to know

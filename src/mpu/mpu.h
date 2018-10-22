@@ -1,6 +1,6 @@
-rom #include "libraries/I2Cdev.h"
+#include "I2Cdev.h"
 
-#include "libraries/MPU6050_6Axis_MotionApps20.h"
+#include "MPU6050_6Axis_MotionApps20.h"
 
 
 MPU6050 mpu;
