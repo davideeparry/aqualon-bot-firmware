@@ -13,13 +13,13 @@ void Database::init(StateService &state) {
 
 void Database::writeToDataLog(char* dataMsg) {
     dataLog = SD.open(dataLogId, FILE_WRITE);
-    dataLog.write(dataMsg);
+    dataLog.println(dataMsg);
     dataLog.close();
 }
 
 void Database::writeToSystemLog(char* systemMsg) {
     systemLog = SD.open(systemLogId, FILE_WRITE);
-    systemLog.write(systemMsg);
+    systemLog.println(systemMsg);
     systemLog.close();
 }
 
