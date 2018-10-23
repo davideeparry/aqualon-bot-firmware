@@ -1,3 +1,7 @@
+
+#ifndef MPU
+#define MPU
+
 #include "I2Cdev.h"
 
 #include "MPU6050_6Axis_MotionApps20.h"
@@ -36,3 +40,5 @@ class Mpu {
     void init(StateService &state);
     void isr();
 };
+
+#endif

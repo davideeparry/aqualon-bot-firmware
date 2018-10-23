@@ -5,11 +5,8 @@
 #include "comms/Communications.h"
 #include "motors/Motors.h"
 #include "gps/Gps.h"
-//#include "power/power.h"
-
-
-
-//#include "mpu/mpu.h"
+#include "power/Power.h"
+#include "mpu/Mpu.h"
 
 #include "state/StateService.h"
 #include "state/globalObjs.h" // CONTAINS ALL THE SUBSYSTEMS AS GLOBAL CLASSES
@@ -23,7 +20,7 @@ void setup() {
    gps.init(stateService);
    motors.init(stateService);
    mpu.init(stateService);
-   //mpuInit();
+   power.init(stateService);
 }
 
 void loop() {
