@@ -8,14 +8,19 @@
 
 class Database {
     const int chipSelect = BUILTIN_SDCARD;
-    StateService* stateService;
     char dataLogId[9] = "data.log";
     char systemLogId[11] = "system.log";
     File dataLog;
     File systemLog;
+    Database() {
 
+    };
     public:
-    void init(StateService &state);
+    static Database& instance() {
+        static Database INSTANCE;
+        return INSTANCE;
+    }
+    void init();
     void writeToSystemLog(char* messageBuffer);
     void writeToDataLog(char* messageBuffer);
     String dumpSystemLogs();
@@ -24,5 +29,4 @@ class Database {
     void clearDatalog();
 };
 
-#include "../state/globalObjs.h"
 #endif

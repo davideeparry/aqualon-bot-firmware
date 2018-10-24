@@ -1,8 +1,7 @@
 #include "Mpu.h"
 #include "MpuISR.h"
 
-void Mpu::init(StateService &state) {
-    stateService = &state;
+void Mpu::init() {
     mpu.initialize();
     pinMode(interruptPin, INPUT); 
     devStatus = mpu.dmpInitialize();

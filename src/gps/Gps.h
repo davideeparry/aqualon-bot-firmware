@@ -13,12 +13,20 @@ class Gps
     char buf[32];
     float flat, flon;
     unsigned long age;
-    StateService* stateService;
+    Gps() {
+
+    };
     public:
+    static Gps& instance() {
+        static Gps INSTANCE;
+        return INSTANCE;
+    }
     // Setup Routine
-    void init(StateService &stateService);
+    void init();
     void isr();
     // various get functions
 };
+
+
 
 #endif

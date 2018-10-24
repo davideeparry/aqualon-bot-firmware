@@ -1,9 +1,9 @@
 #include "Database.h"
+#include "../comms/Communications.h"
 
-void Database::init(StateService &state) {
-    stateService = &state;
+void Database::init() {
     if (!SD.begin(chipSelect)) { // Need a callback
-        communications.sendError("SD Initialization Failed");
+        Communications::instance().sendError("SD Initialization Failed");
         return;
     }
     systemLog = SD.open(systemLogId, FILE_WRITE); // need callback

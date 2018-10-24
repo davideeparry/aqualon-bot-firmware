@@ -1,8 +1,7 @@
 #include "Motors.h"
 
 
-void Motors::init(StateService &state) {
-    stateService = &state;
+void Motors::init() {
     pinMode(l_direction, OUTPUT);
     pinMode(r_direction, OUTPUT);
 }

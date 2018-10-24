@@ -27,7 +27,6 @@ struct power_reading
 
 
 class Power {
-    StateService* stateService;
     Adafruit_INA219 ina219;
     unsigned update_rate_ms;
 
@@ -42,13 +41,20 @@ class Power {
     struct power_reading get_reading();
     
 
+    Power() {
+
+    };
     public:
+    static Power& instance() {
+        static Power INSTANCE;
+        return INSTANCE;
+    }
     
     void isr();
     /*
      * Initialization. Must be called in setup(). 
      */
-    void init(StateService &state);
+    void init();
     
     
     

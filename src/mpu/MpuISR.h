@@ -1,10 +1,10 @@
 #ifndef MPU_ISR
 #define MPU_ISR 1
 
-#include "../state/globalObjs.h"
+#include "Mpu.h"
 
 void mpuISRWrapper() {
-    mpu.isr();
+    Mpu::instance().isr();
 };
 
 #endif

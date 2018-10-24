@@ -16,11 +16,16 @@ class Communications
     HardwareSerial4 serialPort;
     const int interruptPin = 12;
     ErrorStrings errorStrings;
-    StateService* stateService;
+    Communications() {
 
+    };
     public:
+    static Communications& instance() {
+        static Communications INSTANCE;
+        return INSTANCE;
+    }
     int getMaxSerialMsgSize();
-    void init(StateService &stateService);
+    void init();
     void isr();
     //void receiveMsg(); ISR FUNCTION NEEDS TO BE NOT A CLASS FUNCTION
     void sendError(String errorMsg);

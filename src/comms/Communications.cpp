@@ -3,8 +3,7 @@
 #include "CommunicationsISR.h"
 
 
-void Communications::init(StateService &state) {
-    stateService = &state;
+void Communications::init() {
     serialPort.begin(9600);
     pinMode(interruptPin, INPUT); 
     attachInterrupt(digitalPinToInterrupt(interruptPin), communicationsISRWrapper, RISING); 

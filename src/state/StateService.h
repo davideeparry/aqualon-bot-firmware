@@ -3,7 +3,14 @@
 #include "Arduino.h"
 
 class StateService {
+    StateService() {
+
+    };
     public:
+    static StateService& instance() {
+        static StateService INSTANCE;
+        return INSTANCE;
+    }
     // NO REAL THOUGHT IS PUT INTO WHAT THESE ACTUALLY ARE YET, JUST QUICK FROM THE EXISTING ISRs + SOME IMAGINATION
     // There are better ways to do this where we split these catagories up into classes themselves but w/e
     // NOTICE THESE ARE ALL CURRENTLY PUBLIC
@@ -53,6 +60,7 @@ class StateService {
     //bool storeState();  // which brings us to this, which will be used to store the state to fs.
 
 };
+
 
 
 #endif
