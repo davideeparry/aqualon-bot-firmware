@@ -1,5 +1,5 @@
 #ifndef CALLBACK_TYPES
-#define CALLBACK_TYPES
+#define CALLBACK_TYPES 1
 #include <functional>
 #include <vector>
 

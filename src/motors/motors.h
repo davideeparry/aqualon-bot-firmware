@@ -1,6 +1,7 @@
 #ifndef MOTORS
-#define MOTORS
+#define MOTORS 1
 #include "../state/StateService.h"
+#include "Arduino.h"
 
 class Motors {
     // Might want to publish to state service so will add it but nothing is being published to it atm

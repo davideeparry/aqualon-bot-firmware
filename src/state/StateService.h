@@ -1,5 +1,6 @@
 #ifndef STATE
-#define STATE
+#define STATE 1
+#include "Arduino.h"
 
 class StateService {
     public:
@@ -45,11 +46,11 @@ class StateService {
     String navigationMode;
     double navigationDestinationDecimalDegrees;
 
-    StateService(); // this constructor will be quite complicated as it needs to know
+    //StateService(); // this constructor will be quite complicated as it needs to know
                     // whether it is recovering from a problem or being freshly deployed.
                     // it will want to try and recover from a copy stored in file storage.
                     
-    bool storeState();  // which brings us to this, which will be used to store the state to fs.
+    //bool storeState();  // which brings us to this, which will be used to store the state to fs.
 
 };
 

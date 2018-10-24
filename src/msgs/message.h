@@ -1,5 +1,5 @@
 #ifndef MESSAGES
-#define MESSAGES
+#define MESSAGES 1
 #include <string>
 
 class message

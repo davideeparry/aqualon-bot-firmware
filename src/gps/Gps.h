@@ -1,10 +1,11 @@
 #ifndef GPS
-#define GPS
+#define GPS 1
 
 #include <TimerOne.h>
 #include <TinyGPS.h>
 #include <SoftwareSerial.h>
 #include "../state/StateService.h"
+
 
 class Gps 
 {

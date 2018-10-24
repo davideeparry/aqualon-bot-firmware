@@ -1,15 +1,16 @@
 #ifndef DATABASE
-#define DATABASE
-#include <SD.h>
-#include <SPI.h>
-#include <String>
+#define DATABASE 1
+#include "SD.h"
+#include "SPI.h"
 #include "../state/stateService.h"
+
+#include "Arduino.h"
 
 class Database {
     const int chipSelect = BUILTIN_SDCARD;
     StateService* stateService;
-    char* dataLogId = "data.log";
-    char* systemLogId = "system.log";
+    char dataLogId[9] = "data.log";
+    char systemLogId[11] = "system.log";
     File dataLog;
     File systemLog;
 
@@ -23,4 +24,5 @@ class Database {
     void clearDatalog();
 };
 
+#include "../state/globalObjs.h"
 #endif

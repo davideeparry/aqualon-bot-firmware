@@ -3,17 +3,20 @@
  * as supplied by the INA219 current shunt power monitor. 
  */
 
+
+
+
+#ifndef _POWER_H
+#define _POWER_H 1
+
+#define POWER_DEFAULT_UPDATE_RATE_MS    (500)
+#define POWER_NUM_READINGS              (256)
+
 #include <Arduino.h>
 #include <Wire.h>
 #include <Adafruit_INA219.h>
 #include <TimerThree.h>
 #include "../state/StateService.h"
-
-#ifndef _POWER_H
-#define _POWER_H value
-
-#define POWER_DEFAULT_UPDATE_RATE_MS    (500)
-#define POWER_NUM_READINGS              (256)
 
 struct power_reading
     {
@@ -25,12 +28,12 @@ struct power_reading
 
 class Power {
     StateService* stateService;
-    static Adafruit_INA219 ina219;
-    static unsigned update_rate_ms;
+    Adafruit_INA219 ina219;
+    unsigned update_rate_ms;
 
-    static struct power_reading readings[POWER_NUM_READINGS];
-    static unsigned current_index;
-    static unsigned power_timer;
+    struct power_reading readings[POWER_NUM_READINGS];
+    unsigned current_index;
+    unsigned power_timer;
     /*
      * Struct for storing a power reading, with timestamp
      *

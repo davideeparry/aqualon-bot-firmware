@@ -1,6 +1,5 @@
 #include "messageHandler.h"
-#include <string>
-#include <Arduino.h>
+#include "Arduino.h"
 
 // NOT YET IMPLEMENTED
 

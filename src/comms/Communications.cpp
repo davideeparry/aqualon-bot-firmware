@@ -1,6 +1,6 @@
-#include "CommunicationsISR.h"
-#include "Communications.h"
 
+#include "Communications.h"
+#include "CommunicationsISR.h"
 
 
 void Communications::init(StateService &state) {
@@ -18,16 +18,17 @@ void Communications::isr() {
 
 
 void Communications::sendError(String errorMsg) {
-    message error;
-    error.makeError(errorMsg);
+    //message error;
+    //error.makeError(errorMsg);
+    String error = errorMsg; // tmp becauase no message lib
     sendMessage(error);
     sendMessage(error);
     sendMessage(error);
 }
 
-void Communications::sendMessage(message msg) { 
-    String str(msg.getSerialBuffer());
-    serialPort.print(str);
+void Communications::sendMessage(/*message*/String msg) { 
+    //String str(msg.getSerialBuffer()); needs msg finished
+    serialPort.print(/*str*/msg);
 }
 
 void Communications::read(char recBuffer[], int &index) {
@@ -66,7 +67,7 @@ void Communications::read(char recBuffer[], int &index) {
 }
 
 void Communications::sendSuccess(String uuid) {
-    message success;
-    success.addKeyValuePair("uuid",uuid);
-    sendMessage(success);
+    //message success;
+    //success.addKeyValuePair("uuid",uuid);
+    sendMessage(/*success*/uuid);
 }

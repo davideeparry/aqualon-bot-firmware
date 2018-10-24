@@ -1,11 +1,12 @@
 
 #ifndef MPU
-#define MPU
+#define MPU 1
 
 #include "I2Cdev.h"
 
 #include "MPU6050_6Axis_MotionApps20.h"
 #include "../state/StateService.h"
+
 
 class Mpu {
     StateService* stateService;

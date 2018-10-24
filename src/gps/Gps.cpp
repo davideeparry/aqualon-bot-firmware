@@ -11,7 +11,7 @@ void Gps::init(StateService &state) {  // GPS TX/RX are plugged into Serial2
 
 void Gps::isr() 
 {
-  bool newData = false;
+  //bool newData = false;
   while (Serial2.available()) {
       char c = Serial2.read();
       gps.encode(c);

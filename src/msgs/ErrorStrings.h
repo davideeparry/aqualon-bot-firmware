@@ -1,12 +1,12 @@
 #ifndef JSON_MESSAGES
-#define JSON_MESSAGES
-#include <string>
+#define JSON_MESSAGES 1
+#include "Arduino.h"
 
 class ErrorStrings {
     public:
-    const String transmissionErrorNotAvaliable = "No bytes avaliable to read following rec interupt";
-    const String transmissionErrorOverflow = "Overflow";
-    const String transmissionErrorUnknownMsg = "No message handler for msg";
+    String transmissionErrorNotAvaliable = "No bytes avaliable to read following rec interupt";
+    String transmissionErrorOverflow = "Overflow";
+    String transmissionErrorUnknownMsg = "No message handler for msg";
 };
 
 
