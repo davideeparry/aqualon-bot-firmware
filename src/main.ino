@@ -3,10 +3,10 @@
 #include "state/StateService.h"
 #include "comms/Communications.h"
 #include "db/Database.h"
-//#include "gps/Gps.h"
-//#include "mpu/Mpu.h"
+#include "gps/Gps.h"
+#include "mpu/Mpu.h"
 //#include "motors/Motors.h"
-//#include "power/Power.h"
+#include "power/Power.h"
 
  // CONTAINS ALL THE SUBSYSTEMS AS GLOBAL CLASSES
 void setup() {
@@ -16,10 +16,11 @@ void setup() {
 
    Communications::instance().init(Serial);
 // this is a service design pattern
-   //Mpu::instance().init();
-   //Gps::instance().init();
+   
+   Gps::instance().init();
+   Mpu::instance().init();
    //Motors::instance().init();
-   //Power::instance().init();
+   Power::instance().init();
    Database::instance().init();
    
 }
