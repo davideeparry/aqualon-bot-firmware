@@ -1,5 +1,5 @@
-#ifndef MESSAGES
-#define MESSAGES
+/*#ifndef MESSAGES
+#define MESSAGES 1
 #include <string>
 
 class message
@@ -17,4 +17,4 @@ class message
         char* getSerialBuffer(); // Turn back into a byte buffer for transmission     
 };
 
-#endif
+#endif*/

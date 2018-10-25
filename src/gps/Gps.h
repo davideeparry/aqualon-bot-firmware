@@ -1,10 +1,11 @@
 #ifndef GPS
-#define GPS
+#define GPS 1
 
 #include <TimerOne.h>
 #include <TinyGPS.h>
 #include <SoftwareSerial.h>
 #include "../state/StateService.h"
+
 
 class Gps 
 {
@@ -12,12 +13,20 @@ class Gps
     char buf[32];
     float flat, flon;
     unsigned long age;
-    StateService* stateService;
+    Gps() {
+
+    };
     public:
+    static Gps& instance() {
+        static Gps INSTANCE;
+        return INSTANCE;
+    }
     // Setup Routine
-    void init(StateService &stateService);
+    void init();
     void isr();
     // various get functions
 };
+
+
 
 #endif

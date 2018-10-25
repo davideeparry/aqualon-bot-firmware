@@ -1,30 +1,46 @@
 
 #include <Wire.h>
-#include <string>
-
-#include "comms/Communications.h"
-#include "motors/Motors.h"
-#include "gps/Gps.h"
-#include "power/Power.h"
-#include "mpu/Mpu.h"
-
 #include "state/StateService.h"
-#include "state/globalObjs.h" // CONTAINS ALL THE SUBSYSTEMS AS GLOBAL CLASSES
+#include "comms/Communications.h"
+#include "db/Database.h"
+//#include "gps/Gps.h"
+//#include "mpu/Mpu.h"
+//#include "motors/Motors.h"
+//#include "power/Power.h"
 
+ // CONTAINS ALL THE SUBSYSTEMS AS GLOBAL CLASSES
 void setup() {
    Serial.begin(115200);
    Wire.begin();
    Wire.setClock(400000); 
-   
-   communications.init(stateService); // this is a service design pattern
-   gps.init(stateService);
-   motors.init(stateService);
-   mpu.init(stateService);
-   power.init(stateService);
-}
 
+   Communications::instance().init(Serial);
+// this is a service design pattern
+   //Mpu::instance().init();
+   //Gps::instance().init();
+   //Motors::instance().init();
+   //Power::instance().init();
+   Database::instance().init();
+   
+}
+int counter = 0;
+bool flag = false;
 void loop() {
-   motors.loop();
+    if (Serial.available()) {
+       flag = true;
+    }
+    //Motors::instance().loop();
+    if (flag == true) {
+        if (counter == 1000000) {
+            //Serial.println("hit");
+            Communications::instance().isr();
+            counter = 0;
+            flag = false;
+        } else {
+            counter++;
+        }
+    }
+   
 }
         
         

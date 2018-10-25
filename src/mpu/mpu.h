@@ -1,14 +1,14 @@
 
 #ifndef MPU
-#define MPU
+#define MPU 1
 
 #include "I2Cdev.h"
 
 #include "MPU6050_6Axis_MotionApps20.h"
 #include "../state/StateService.h"
 
+
 class Mpu {
-    StateService* stateService;
     MPU6050 mpu;
     int interruptPin = 11;////se pin 2 on Arduino Uno & most boards
 
@@ -36,9 +36,17 @@ class Mpu {
 
     volatile bool mpuInterrupt = false;     // indicates whether MPU interrupt pin has gone high
     
+    Mpu() {
+        
+    };
     public:
-    void init(StateService &state);
+    static Mpu& instance() {
+        static Mpu INSTANCE;
+        return INSTANCE;
+    }
+    void init();
     void isr();
 };
+
 
 #endif

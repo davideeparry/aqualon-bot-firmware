@@ -12,7 +12,7 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug",
-            "executable": "c:/Users/David Parry/Documents/GitHub/aqualon-bot-firmware/.pioenvs/teensy36/firmware.elf",
+            "executable": "c:/Users/David Parry/Documents/PlatformIO/Projects/181022-141709-teensy36/.pioenvs/teensy36/firmware.elf",
             "toolchainBinDir": "C:/Users/David Parry/.platformio/packages/toolchain-gccarmnoneeabi/bin",
             "svdPath": "C:/Users/David Parry/.platformio/platforms/teensy/misc/svd/MK66F18.svd",
             "preLaunchTask": {
@@ -25,7 +25,7 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (skip Pre-Debug)",
-            "executable": "c:/Users/David Parry/Documents/GitHub/aqualon-bot-firmware/.pioenvs/teensy36/firmware.elf",
+            "executable": "c:/Users/David Parry/Documents/PlatformIO/Projects/181022-141709-teensy36/.pioenvs/teensy36/firmware.elf",
             "toolchainBinDir": "C:/Users/David Parry/.platformio/packages/toolchain-gccarmnoneeabi/bin",
             "svdPath": "C:/Users/David Parry/.platformio/platforms/teensy/misc/svd/MK66F18.svd",
             "internalConsoleOptions": "openOnSessionStart"
