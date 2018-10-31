@@ -2,7 +2,6 @@
 #include "MpuISR.h"
 
 void Mpu::init() {
-<<<<<<< HEAD
     mpu.initialize();
     pinMode(interruptPin, INPUT); 
     devStatus = mpu.dmpInitialize();
@@ -17,37 +16,44 @@ void Mpu::init() {
         mpuIntStatus = mpu.getIntStatus();
         dmpReady = true;
         packetSize = mpu.dmpGetFIFOPacketSize();
-=======
-    IMU = new MPU9250(Wire,0x68);
-    int status = IMU->begin();
-    if (status < 0) {
->>>>>>> eventTesting
     } else {
-    } 
-    Timer1.attachInterrupt(mpuISRWrapper);
-
+        Serial.print(F("DMP Initialization failed (code "));
+        Serial.print(devStatus);
+        Serial.println(F(")"));
+    }
 }
 
 void Mpu::isr() {
-      IMU->readSensor();
-      /*String gX = IMU->getGyroX_rads();
-      String gY = IMU->getGyroY_rads();
-      String gZ = IMU->getGyroZ_rads();
-      String mX = IMU->getMagX_uT();
-      String mY = IMU->getMagY_uT();
-      String mZ = IMU->getMagZ_uT();
-      String aX = IMU->getAccelX_mss();
-      String aZ = IMU->getAccelY_mss();
-      String aY = IMU->getAccelZ_mss();
-      String tmp = "";
-      tmp.concat('g');tmp.concat(gX);tmp.concat('\n');
-      tmp.concat('g');tmp.concat(gY);tmp.concat('\n');
-      tmp.concat('g');tmp.concat(gZ);tmp.concat('\n');
-      tmp.concat('m');tmp.concat(mX);tmp.concat('\n');
-      tmp.concat('m');tmp.concat(mY);tmp.concat('\n');
-      tmp.concat('m');tmp.concat(mZ);tmp.concat('\n');
-      tmp.concat('a');tmp.concat(aX);tmp.concat('\n');
-      tmp.concat('a');tmp.concat(aY);tmp.concat('\n');
-      tmp.concat('a');tmp.concat(aZ);tmp.concat('\n');
-      Communications::instance().sendMessage(tmp);*/
+    mpuIntStatus = mpu.getIntStatus();
+
+    // get current FIFO count
+    fifoCount = mpu.getFIFOCount();
+
+    // check for overflow (this should never happen unless our code is too inefficient)
+    if ((mpuIntStatus & 0x10) || fifoCount == 1024) {
+        // reset so we can continue cleanly
+        mpu.resetFIFO();
+        Serial.println(F("FIFO overflow!"));
+
+    // otherwise, check for DMP data ready interrupt (this should happen frequently)
+    } else if (mpuIntStatus & 0x02) {
+        // wait for correct available data length, should be a VERY short wait
+        while (fifoCount < packetSize) fifoCount = mpu.getFIFOCount();
+
+        // read a packet from FIFO
+        mpu.getFIFOBytes(fifoBuffer, packetSize);
+        
+        // track FIFO count here in case there is > 1 packet available
+        // (this lets us immediately read more without waiting for an interrupt)
+        fifoCount -= packetSize;  
+   
+        // display initial world-frame acceleration, adjusted to remove gravity
+        // and rotated based on known orientation from quaternion
+        mpu.dmpGetQuaternion(&q, fifoBuffer);
+        mpu.dmpGetAccel(&aa, fifoBuffer);
+        mpu.dmpGetGravity(&gravity, &q);
+        mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
+        mpu.dmpGetLinearAccelInWorld(&aaWorld, &aaReal, &q);
+        mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);  
+    }  
 }

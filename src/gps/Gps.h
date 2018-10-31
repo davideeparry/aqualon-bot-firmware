@@ -2,15 +2,14 @@
 #define GPS 1
 
 #include <TimerOne.h>
-#include "TinyGPS++.h"
-#include "HardwareSerial.h"
+#include <TinyGPS.h>
+#include <SoftwareSerial.h>
 #include "../state/StateService.h"
 
 
 class Gps 
 {
-    HardwareSerial2 gpsSerial;
-    TinyGPSPlus gps;
+    TinyGPS gps;
     char buf[32];
     float flat, flon;
     unsigned long age;

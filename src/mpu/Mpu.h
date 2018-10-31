@@ -1,21 +1,14 @@
 
-
-
 #ifndef MPU
 #define MPU 1
-<<<<<<< HEAD
-=======
-#include "Arduino.h"
-#include "MPU9250.h"
-#include "../comms/Communications.h"
-#include "TimerOne.h"
->>>>>>> eventTesting
 
+#include "I2Cdev.h"
 
+#include "MPU6050_6Axis_MotionApps20.h"
+#include "../state/StateService.h"
 
 
 class Mpu {
-<<<<<<< HEAD
     MPU6050 mpu;
     int interruptPin = 11;////se pin 2 on Arduino Uno & most boards
 
@@ -43,9 +36,6 @@ class Mpu {
 
     volatile bool mpuInterrupt = false;     // indicates whether MPU interrupt pin has gone high
     
-=======
-    MPU9250* IMU;
->>>>>>> eventTesting
     Mpu() {
         
     };
