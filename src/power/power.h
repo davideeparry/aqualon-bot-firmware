@@ -19,7 +19,7 @@
 
 class Power {
     Adafruit_INA219 ina219;
-    int maxAmpH = 2200;
+    int maxAmpH = 2200*3600000;
     int currentAmpH = 0;
     int previousTime;
     Power() {
