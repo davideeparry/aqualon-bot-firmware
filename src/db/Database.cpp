@@ -1,52 +1,62 @@
 #include "Database.h"
 #include "../comms/Communications.h"
 
-void Database::init() {
-    if (!SD.begin(chipSelect)) { // Need a callback
+void Database::init()
+{
+    if (!SD.begin(chipSelect))
+    { 
         Communications::instance().sendError("SD Initialization Failed");
-        return;
+        initFailed = true;
+        return; // a callback would be good here
     }
-    systemLog = SD.open(systemLogId, FILE_WRITE); // need callback
-    dataLog = SD.open(dataLogId, FILE_WRITE); // need callback
 };
 
-void Database::writeToDataLog(char* dataMsg) {
+void Database::writeToDataLog(String msg)
+{
     dataLog = SD.open(dataLogId, FILE_WRITE); // needs callback
-    dataLog.println(dataMsg);
+    dataLog.println(msg);
     dataLog.close();
 };
 
-void Database::writeToSystemLog(char* systemMsg) {
+void Database::writeToSystemLog(String msg)
+{
     systemLog = SD.open(systemLogId, FILE_WRITE); // needs callback
-    systemLog.println(systemMsg);
+    systemLog.println(msg);
     systemLog.close();
 };
 
-String Database::dumpDataLogs() { // WILL WANT TO MAKE THIS ONLY DUMP AS MUCH AS MEMORY WILL ALLOW, AND IT SHOULD BE CALLED MULTIPLE TIMES BY THE CALLER
-    String dataDump;
-    dataLog = SD.open(dataLogId, FILE_WRITE); // callback
-    while (dataLog.available()) {
-        dataDump.append(dataLog.read());
+String Database::dumpDataLogs()
+{ 
+    String dataDump = "";
+    dataLog = SD.open(dataLogId); // callback
+    while (dataLog.available())
+    {
+        char tmp = dataLog.read();
+        dataDump.concat(tmp);
     }
     dataLog.close();
     return dataDump;
+    // This needs a limit so that it doesn't dump too much memory and will partition it. 
 };
 
-String Database::dumpSystemLogs() { // WILL WANT TO MAKE THIS ONLY DUMP AS MUCH AS MEMORY WILL ALLOW, AND IT SHOULD BE CALLED MULTIPLE TIMES BY THE CALLER
+String Database::dumpSystemLogs()
+{ // WILL WANT TO MAKE THIS ONLY DUMP AS MUCH AS MEMORY WILL ALLOW, AND IT SHOULD BE CALLED MULTIPLE TIMES BY THE CALLER
     String systemDump;
     systemLog = SD.open(systemLogId, FILE_WRITE);
-    while (systemLog.available()) {
+    while (systemLog.available())
+    {
         systemDump.append(systemLog.read());
     }
     dataLog.close();
     return systemDump;
 };
 
-void Database::clearSystemLog() {
+void Database::clearSystemLog()
+{
     SD.remove(systemLogId);
 };
 
-void Database::clearDatalog() {
+void Database::clearDatalog()
+{
     SD.remove(dataLogId);
 };
-
