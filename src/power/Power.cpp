@@ -13,10 +13,6 @@ void Power::isr()
     readings[current_index].time = millis();
     readings[current_index].V = ina219.getBusVoltage_V();
     readings[current_index].I = ina219.getCurrent_mA();
-    Communications::instance().sendMessage(readings[current_index].V);
-    Communications::instance().sendMessage("\n");
-    Communications::instance().sendMessage(readings[current_index].I);
-    Communications::instance().sendMessage("\n");
     current_index = (current_index + 1) % POWER_NUM_READINGS;
 }
 

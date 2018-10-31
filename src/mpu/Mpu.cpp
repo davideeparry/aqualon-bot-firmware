@@ -5,13 +5,17 @@ void Mpu::init() {
     IMU = new MPU9250(Wire,0x68);
     int status = IMU->begin();
     if (status < 0) {
+      /*
       Communications::instance().sendMessage("IMU initialization unsuccessful\n");
       Communications::instance().sendMessage("Check IMU wiring or try cycling power\n");
       Communications::instance().sendMessage("Status: ");
       Communications::instance().sendMessage(status);
+      */
     } else {
+      /*
       Communications::instance().sendMessage("Status: ");
       Communications::instance().sendMessage(status);
+      */
     } 
     Timer1.attachInterrupt(mpuISRWrapper);
 
