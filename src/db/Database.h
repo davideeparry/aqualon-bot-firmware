@@ -31,6 +31,8 @@ class Database
     String dumpDataLogs();
     void clearSystemLog();
     void clearDatalog();
+    void writeSingleDataToFile(String filename, String data);
+    String getSingleDataFromFile(String filename);
 };
 
 #endif
