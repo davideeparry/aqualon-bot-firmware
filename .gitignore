@@ -7,3 +7,5 @@
 .vscode/extensions.json
 .vscode/*.json
 .vscode
+.vscode/launch.json
+.vscode/extensions.json
