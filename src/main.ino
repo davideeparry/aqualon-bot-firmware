@@ -1,8 +1,8 @@
 
 #include <Wire.h>
-#include "state/StateService.h"
-#include "comms/Communications.h"
-#include "db/Database.h"
+#include "StateService.h"
+#include "Communications.h"
+#include "Database.h"
 //#include "gps/Gps.h"
 //#include "mpu/Mpu.h"
 //#include "motors/Motors.h"

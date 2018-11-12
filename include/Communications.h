@@ -1,11 +1,11 @@
 #ifndef COMMUNICATIONS
 #define COMMUNICATIONS 1
-#include "../msgs/ErrorStrings.h"
-#include "../state/StateService.h"
+#include "ErrorStrings.h"
+#include "StateService.h"
 #include "Arduino.h"
 #include "HardwareSerial.h"
-#include "../msgs/messageHandler.h"
-#include "../msgs/Message.h"
+#include "messageHandler.h"
+#include "Message.h"
 
 class Communications
 {

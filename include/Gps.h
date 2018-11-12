@@ -4,7 +4,8 @@
 #include <TimerOne.h>
 #include "TinyGPS++.h"
 #include "HardwareSerial.h"
-#include "../state/StateService.h"
+#include "StateService.h"
+#include "Communications.h"
 
 
 class Gps 
