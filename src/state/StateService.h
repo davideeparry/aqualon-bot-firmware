@@ -2,6 +2,12 @@
 #define STATE 1
 #include "Arduino.h"
 
+enum NavigationState {
+    NAV_STATE_STARTUP,
+    NAV_STATE_DISCOVERY,
+    NAV_STATE_RUN
+};
+
 class StateService {
     StateService() {
 
@@ -37,9 +43,9 @@ class StateService {
     double imuAX;
     double imuAY;
     double imuAZ;
-    double imuYaw;
-    double imuPitch;
-    double imuRoll;
+    double imuGX; 
+    double imuGY;
+    double imuGZ; // Yaw
 
     // gps
     String gpsStatus;
@@ -49,8 +55,11 @@ class StateService {
     double gpsLat;
     double gpsLong;
     double gpsAge;
-    // 
-    String navigationMode;
+    bool gpsNew;
+
+    // navigation
+
+    NavigationState navState;
     double navigationDestinationDecimalDegrees;
 
     //StateService(); // this constructor will be quite complicated as it needs to know
