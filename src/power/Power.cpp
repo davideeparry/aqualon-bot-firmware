@@ -1,6 +1,7 @@
 
 #include "Power.h"
 #include "PowerISR.h"
+#include "../comms/Communications.h"
 
 
 
@@ -23,7 +24,7 @@ void Power::init()
     power_timer = 0;
     ina219.begin();
     update_rate_ms = POWER_DEFAULT_UPDATE_RATE_MS;
-    Timer3.initialize();
+    Timer3.initialize(500000);
     Timer3.attachInterrupt(powerISRWrapper);
 }
 

@@ -6,23 +6,27 @@
 
 #include "Arduino.h"
 
-class Database {
+class Database
+{
+    bool initFailed = false;
     const int chipSelect = BUILTIN_SDCARD;
     char dataLogId[9] = "data.log";
     char systemLogId[11] = "system.log";
     File dataLog;
     File systemLog;
-    Database() {
+    Database(){
 
     };
-    public:
-    static Database& instance() {
+
+  public:
+    static Database &instance()
+    {
         static Database INSTANCE;
         return INSTANCE;
     }
     void init();
-    void writeToSystemLog(char* messageBuffer);
-    void writeToDataLog(char* messageBuffer);
+    void writeToSystemLog(String messageBuffer);
+    void writeToDataLog(String messageBuffer);
     String dumpSystemLogs();
     String dumpDataLogs();
     void clearSystemLog();
