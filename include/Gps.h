@@ -6,29 +6,31 @@
 #include "HardwareSerial.h"
 #include "StateService.h"
 #include "Communications.h"
+#include "Log.h"
+#include "Constants.h"
+#include <Metro.h>
 
 
 class Gps 
 {
-    HardwareSerial2 gpsSerial;
-    TinyGPSPlus gps;
-    char buf[32];
-    float flat, flon;
-    unsigned long age;
-    Gps() {
-
-    };
+    private:
+        HardwareSerial2 gpsSerial;
+        TinyGPSPlus gps;
+        Metro timer;
+        char buf[32];
+        float flat, flon;
+        unsigned long age;
+        Gps() : timer(Metro(100)) {};
     public:
-    static Gps& instance() {
-        static Gps INSTANCE;
-        return INSTANCE;
-    }
-    // Setup Routine
-    void init();
-    void isr();
-    // various get functions
+        static Gps& instance() {
+            static Gps INSTANCE;
+            return INSTANCE;
+        }
+        // Setup Routine
+        void init(int update_interval);
+        void isr();
+        void update();
+        // various get functions
 };
-
-
 
 #endif

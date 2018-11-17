@@ -4,7 +4,7 @@
 #include "StateService.h"
 #include "Arduino.h"
 #include "HardwareSerial.h"
-#include "messageHandler.h"
+#include "MessageHandler.h"
 #include "Message.h"
 
 class Communications

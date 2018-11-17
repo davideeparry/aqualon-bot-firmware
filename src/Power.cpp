@@ -1,12 +1,7 @@
 
 #include "Power.h"
 #include "PowerISR.h"
-#include "../comms/Communications.h"
-
-
-
-
-
+#include "Communications.h"
 
 void Power::isr()
 {

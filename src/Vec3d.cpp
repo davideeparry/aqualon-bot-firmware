@@ -17,3 +17,15 @@ Vec3d operator-(Vec3d a, Vec3d b) {
                  a.getY() - b.getY(), 
                  a.getZ() - b.getZ());
 }
+
+Vec3d operator*(Vec3d v, float s) {
+    return Vec3d(v.getX() * s, 
+                 v.getY() * s, 
+                 v.getZ() * s);
+}
+
+Vec3d operator/(Vec3d v, float s) {
+    return Vec3d(v.getX() / s, 
+                 v.getY() / s, 
+                 v.getZ() / s);
+}

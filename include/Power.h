@@ -16,7 +16,7 @@
 #include <Wire.h>
 #include <Adafruit_INA219.h>
 #include <TimerThree.h>
-#include "../state/StateService.h"
+#include "StateService.h"
 
 struct power_reading
     {

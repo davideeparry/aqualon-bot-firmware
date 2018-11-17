@@ -1,18 +1,22 @@
 #ifndef STATESERVICE_H
 #define STATESERVICE_H
 #include "Arduino.h"
+#include "Constants.h"
+#include "Point.h"
+#include "Vec3d.h"
+#include "Log.h"
 
 enum NavigationState {
-    NAV_STATE_STARTUP,
+    NAV_STATE_STARTUP = 0,
     NAV_STATE_DISCOVERY,
-    NAV_STATE_RUN
+    NAV_STATE_RUN,
+    NAV_STATE_HALT
 };
 
 class StateService {
     private:
-        StateService() {
+        StateService() : navState(NAV_STATE_STARTUP), nextWaypoint(-1) {};
 
-        };
     public:
         static StateService& instance() {
             static StateService INSTANCE;
@@ -47,28 +51,41 @@ class StateService {
         double imuGX; 
         double imuGY;
         double imuGZ; // Yaw
+        bool imuHasData;
 
         // gps
         String gpsStatus;
         int gpsSatellites;
-        double gpsHeading;
-        double gpsVelocity;
+        double gpsCourseDegrees;
+        double gpsCourseRadians;
+        double gpsSpeed;
         double gpsLat;
         double gpsLong;
         double gpsAge;
         bool gpsNew;
 
-        // navigation
+        // time
+        bool hasTime;
+        unsigned long timeOffset;
 
+        // navigation
         NavigationState navState;
-        double navigationDestinationDecimalDegrees;
+        Point waypoints[MAX_WAYPOINTS];
+        unsigned numWaypoints;
+        int nextWaypoint = -1;
+        int lastUpdateTime;
+        Vec3d position;
+        Vec3d velocity;
+
+        int addWaypoint(double lat, double lon);
+        int getClosestWaypoint();
+        void incrementNextWaypoint();
 
         //StateService(); // this constructor will be quite complicated as it needs to know
                         // whether it is recovering from a problem or being freshly deployed.
                         // it will want to try and recover from a copy stored in file storage.
                         
         //bool storeState();  // which brings us to this, which will be used to store the state to fs.
-
 };
 
 

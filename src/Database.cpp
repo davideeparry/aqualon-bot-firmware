@@ -1,5 +1,5 @@
 #include "Database.h"
-#include "../comms/Communications.h"
+#include "Communications.h"
 
 void Database::init()
 {
