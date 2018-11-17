@@ -1,36 +1,56 @@
 #ifndef GPS
 #define GPS 1
 
+#include <Arduino.h>
 #include <TimerOne.h>
 #include "TinyGPS++.h"
-#include "HardwareSerial.h"
 #include "StateService.h"
 #include "Communications.h"
-#include "Log.h"
+#include "Debug.h"
 #include "Constants.h"
 #include <Metro.h>
 
+#define GPS_DEFAULT_UPDATE_RATE     20   // 50 is bare minimum to keep up with serial buffer
+#define GPS_DEBUG_LOG_RATE          5000
+#define gpsSerial Serial1
 
 class Gps 
 {
     private:
-        HardwareSerial2 gpsSerial;
         TinyGPSPlus gps;
         Metro timer;
+        Metro debugTimer;
         char buf[32];
         float flat, flon;
         unsigned long age;
-        Gps() : timer(Metro(100)) {};
+        Gps() : timer(Metro(GPS_DEFAULT_UPDATE_RATE)),
+                debugTimer(Metro(GPS_DEBUG_LOG_RATE)) {};
+
+        double courseRadians;
+        double speed;
+        double lat;
+        double lon;
+        bool newData;
+
     public:
         static Gps& instance() {
             static Gps INSTANCE;
             return INSTANCE;
         }
         // Setup Routine
-        void init(int update_interval);
-        void isr();
+        void init();
         void update();
+
+        void setUpdateRate(int update_rate) { timer.interval(update_rate); };
+
         // various get functions
+        double getCourseDegrees() { return 180.0 * courseRadians / PI; };
+        double getCourseRadians() { return courseRadians; };
+        double getSpeed() { return speed; };
+        double getLat() { return lat; };
+        double getLon() { return lon; };
+        bool isNew() { return newData; };
+        void markOld() { newData = 0; }
 };
 
 #endif

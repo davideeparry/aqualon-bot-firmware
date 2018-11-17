@@ -1,21 +1,14 @@
 #ifndef STATESERVICE_H
 #define STATESERVICE_H
+#include "Debug.h"
 #include "Arduino.h"
 #include "Constants.h"
 #include "Point.h"
 #include "Vec3d.h"
-#include "Log.h"
-
-enum NavigationState {
-    NAV_STATE_STARTUP = 0,
-    NAV_STATE_DISCOVERY,
-    NAV_STATE_RUN,
-    NAV_STATE_HALT
-};
 
 class StateService {
     private:
-        StateService() : navState(NAV_STATE_STARTUP), nextWaypoint(-1) {};
+        StateService() {};
 
     public:
         static StateService& instance() {
@@ -35,15 +28,6 @@ class StateService {
         double powerTAvg; // time interval used for averages
         double powerOperatingTimeLeft; // time left to operate with normal power consumption
 
-        // position
-        double positionHeading; // degrees
-        double positionVelocity; 
-        double positionDecimalDegrees;
-
-        // motors
-        int motorsLeftControl;
-        int motorsRightControl;
-
         // imu
         double imuAX;
         double imuAY;
@@ -53,33 +37,9 @@ class StateService {
         double imuGZ; // Yaw
         bool imuHasData;
 
-        // gps
-        String gpsStatus;
-        int gpsSatellites;
-        double gpsCourseDegrees;
-        double gpsCourseRadians;
-        double gpsSpeed;
-        double gpsLat;
-        double gpsLong;
-        double gpsAge;
-        bool gpsNew;
-
         // time
         bool hasTime;
         unsigned long timeOffset;
-
-        // navigation
-        NavigationState navState;
-        Point waypoints[MAX_WAYPOINTS];
-        unsigned numWaypoints;
-        int nextWaypoint = -1;
-        int lastUpdateTime;
-        Vec3d position;
-        Vec3d velocity;
-
-        int addWaypoint(double lat, double lon);
-        int getClosestWaypoint();
-        void incrementNextWaypoint();
 
         //StateService(); // this constructor will be quite complicated as it needs to know
                         // whether it is recovering from a problem or being freshly deployed.

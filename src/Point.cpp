@@ -16,6 +16,9 @@ Point::Point(double latitude, double longitude)
         origin_x = lat * EQUATORIAL_SCALE;
         origin_y = lon * lon_scale * EQUATORIAL_SCALE;
         origin_set = true;
+        LOG("Point, setting origin");
+        LOGV("    X: ", origin_x);
+        LOGV("    Y: ", origin_y);
     }
 }
 

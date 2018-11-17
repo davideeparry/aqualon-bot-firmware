@@ -2,9 +2,10 @@
  * Some simple macros for logging out of the serial port in simulation. 
  */
 
+#ifndef DEBUG_H
+#define DEBUG_H
 
-#ifndef LOG_H
-#define LOG_H
+#include <Arduino.h>
 
 #ifdef SIMULATION
 #define LOG(s)      { Serial.print(millis()); Serial.print(": "); Serial.print(s); Serial.print("\n"); }

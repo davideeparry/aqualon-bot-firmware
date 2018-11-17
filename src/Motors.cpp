@@ -1,7 +1,6 @@
 #include "Motors.h"
 
-void Motors::init(int update_interval) {
-    timer.interval(update_interval);
+void Motors::init() {
     pinMode(PIN_DIR_L, OUTPUT);
     pinMode(PIN_DIR_R, OUTPUT);
 }
