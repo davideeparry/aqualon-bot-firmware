@@ -17,6 +17,6 @@
 #define DEFAULT_D_GAIN      0
 #define DEFAULT_I_GAIN      0
 #define DEFAULT_I_CLAMP     (0.1 * PI)
-#define DEFAULT_DRIVE_GAIN  (2.0)
+#define DEFAULT_DRIVE_GAIN  (10.0)
 
 #endif

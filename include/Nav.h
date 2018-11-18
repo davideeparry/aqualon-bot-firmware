@@ -19,8 +19,9 @@ class Nav {
     private:
         Metro timer;
         Nav() : timer(Metro(NAV_DEFAULT_UPDATE_RATE)), 
-                nextWaypoint(-1),
-                navState(NAV_STATE_STARTUP) {};
+                navState(NAV_STATE_STARTUP),
+                numWaypoints(0),
+                nextWaypoint(-1) {};
 
         NavigationState navState;
         Point waypoints[MAX_WAYPOINTS];
@@ -38,10 +39,19 @@ class Nav {
         void init();
         void update();
 
+        void updateVectors(int timeDeltaMS);
         int addWaypoint(double lat, double lon);
-        int getClosestWaypoint();
+        unsigned getNumWaypoints() { return numWaypoints; };
+        int getNearestWaypoint();
+        int getNearestWaypoint(Point &wp);
+        int getNextWaypoint();
+        int getNextWaypoint(Point &wp);
         void incrementNextWaypoint();
         void setNavState(NavigationState state) { navState = state; };
+        int getNavState() { return navState; };
+
+        Vec3d getPosition() { return position; };
+        Vec3d getVelocity() { return velocity; };
 };
 
 #endif // NAV_H

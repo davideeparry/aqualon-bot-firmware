@@ -28,8 +28,10 @@ void Motors::setCommon(int common) {
 }
 
 void Motors::setDiffCommon(int diff, int common) {
+    diff = min(diff, MOTOR_MAX);
+    common = min(common, MOTOR_MAX);
     int new_left = common + diff;
-    int new_right = common - right;
+    int new_right = common - diff;
     if(abs(new_left) > MOTOR_MAX) {
         int over = new_left > 0 ? new_left - MOTOR_MAX : new_left + MOTOR_MAX;
         new_left = new_left - over;
@@ -39,6 +41,8 @@ void Motors::setDiffCommon(int diff, int common) {
         new_left = new_left - over;
         new_right = new_right - over;
     }
+    left = new_left;
+    right = new_right;
 }
 
 int Motors::getLeft() {

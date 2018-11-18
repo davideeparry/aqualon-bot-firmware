@@ -28,15 +28,6 @@ class StateService {
         double powerTAvg; // time interval used for averages
         double powerOperatingTimeLeft; // time left to operate with normal power consumption
 
-        // imu
-        double imuAX;
-        double imuAY;
-        double imuAZ;
-        double imuGX; 
-        double imuGY;
-        double imuGZ; // Yaw
-        bool imuHasData;
-
         // time
         bool hasTime;
         unsigned long timeOffset;

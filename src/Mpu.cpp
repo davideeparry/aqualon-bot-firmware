@@ -29,6 +29,6 @@ void Mpu::update() {
     az = IMU->getAccelZ_mss();
     newData = 1;
     if(1 == debugTimer.check()) {
-        LOGV("IMU Gyro Z: ", state->imuGZ);
+        LOGV("IMU Gyro Z: ", gz);
     }
 }

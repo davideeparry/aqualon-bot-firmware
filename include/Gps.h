@@ -47,6 +47,8 @@ class Gps
         double getCourseDegrees() { return 180.0 * courseRadians / PI; };
         double getCourseRadians() { return courseRadians; };
         double getSpeed() { return speed; };
+        double getSpeedX() { return speed * cos(courseRadians); };
+        double getSpeedY() { return speed * sin(courseRadians); };
         double getLat() { return lat; };
         double getLon() { return lon; };
         bool isNew() { return newData; };

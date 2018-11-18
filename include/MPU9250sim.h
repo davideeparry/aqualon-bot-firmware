@@ -32,14 +32,19 @@ class MPU9250 {
         float getGyroX_rads();
         float getGyroY_rads();
         float getGyroZ_rads();
+        float getGyroX_degs();
+        float getGyroY_degs();
+        float getGyroZ_degs();
         float getAccelX_mss();
         float getAccelY_mss();
         float getAccelZ_mss();
 
     private:
         char buff[64];
-        uint8_t address;
         TwoWire *i2c;
+        uint8_t address;
+        uint16_t gxRaw, gyRaw, gzRaw;
+        uint16_t axRaw, ayRaw, azRaw;
         float gx, gy, gz;
         float ax, ay, az;
 };

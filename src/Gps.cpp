@@ -13,21 +13,12 @@ void Gps::update()
 
     while(gpsSerial.available() > 0) gps.encode(gpsSerial.read());
 
-    StateService *state = &StateService::instance();
-
     // Did a new valid sentence come in?
     if(gps.location.isUpdated() && gps.location.isValid()) { 
         // CommunicationCommunications::instance().sendMessage(c);s::instance().sendMessage("encoded");
         lat = gps.location.lat();
         lon = gps.location.lng();
         newData = 1;
-    }
-
-    if(1 == debugTimer.check()) {
-        LOGV("GPS heading: ", courseRadians);
-        LOGV("GPS speed: ", speed);
-        LOGV("GPS Lat: ", lat);
-        LOGV("GPS Long: ", lon);
     }
 
     if(gps.course.isUpdated() && gps.course.isValid()) {

@@ -10,7 +10,7 @@
 #include "Debug.h"
 //#include "Power.h"
 
-// Function for controlling boat state via serial
+// Various control and monitoring tools for simulation mode
 void debugUpdate();
 
 // CONTAINS ALL THE SUBSYSTEMS AS GLOBAL CLASSES
@@ -42,7 +42,7 @@ void loop() {
 
 
 void debugUpdate() {
-    StateService* state = &StateService::instance();
+    // Get commands
     char input = '\0';
     if(Serial.available()) {
         input = Serial.read();
@@ -64,5 +64,29 @@ void debugUpdate() {
 
         default:
             break;
+    }
+
+    // Log system state to monitor
+    static Metro logTimer = Metro(3000);
+    if(1 == logTimer.check()) {
+        Gps* gps = &Gps::instance();
+        Nav* nav = &Nav::instance();
+
+        char logBuff[100];
+        Vec3d pos = nav->getPosition();
+        Vec3d vel = nav->getVelocity();
+        sprintf(logBuff, "Lat: %7.4f (x:%4.3f), Lon: %7.4f (y:%4.2f), \nP:[%6.2f,%6.2f,%6.2f], V:[%6.2f,%6.2f,%6.2f]", 
+                gps->getLat(), pos.getX(), gps->getLon(), pos.getY(), 
+                pos.getX(), pos.getY(), pos.getZ(),
+                vel.getX(), vel.getY(), vel.getZ());
+        LOG(logBuff);
+
+        Point wp;
+        int wpi = nav->getNextWaypoint(wp);
+        int ml = Motors::instance().getLeft();
+        int mr = Motors::instance().getRight();
+        sprintf(logBuff, "WP %d of %u: (%5.2f,%4.2f), Motors: (%d, %d), State: %d\n", 
+                wpi, nav->getNumWaypoints(), wp.getX(), wp.getY(), ml, mr, nav->getNavState());
+        LOG(logBuff);
     }
 }
