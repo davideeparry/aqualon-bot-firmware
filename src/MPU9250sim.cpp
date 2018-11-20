@@ -11,12 +11,12 @@ int MPU9250::readSensor() {
     for(uint8_t i=0; i < numBytes; i++) {
         buff[i] = i2c->read();
     }
-    axRaw = (((int16_t)buff[0]) << 8) | buff[1];  
-    ayRaw = (((int16_t)buff[2]) << 8) | buff[3];
-    azRaw = (((int16_t)buff[4]) << 8) | buff[5];
-    gxRaw = (((int16_t)buff[8]) << 8) | buff[9];
-    gyRaw = (((int16_t)buff[10]) << 8) | buff[11];
-    gzRaw = (((int16_t)buff[12]) << 8) | buff[13];
+    axRaw = (int16_t)((buff[0] << 8) | buff[1]);  
+    ayRaw = (int16_t)((buff[2] << 8) | buff[3]);
+    azRaw = (int16_t)((buff[4] << 8) | buff[5]);
+    gxRaw = (int16_t)((buff[8] << 8) | buff[9]);
+    gyRaw = (int16_t)((buff[10] << 8) | buff[11]);
+    gzRaw = (int16_t)((buff[12] << 8) | buff[13]);
 
     ax = (float)axRaw * 250.0 / 32768.0;
     ay = (float)ayRaw * 250.0 / 32768.0;

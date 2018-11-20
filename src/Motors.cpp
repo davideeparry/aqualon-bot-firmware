@@ -3,18 +3,19 @@
 void Motors::init() {
     pinMode(PIN_DIR_L, OUTPUT);
     pinMode(PIN_DIR_R, OUTPUT);
+    lastUpdateMS = millis();
 }
 
 void Motors::setLeft(int l) { 
-    if(l > MOTOR_MAX) left = MOTOR_MAX;
-    else if(l < -MOTOR_MAX) left = -MOTOR_MAX;
-    else left = l;
+    if(l > MOTOR_MAX) targetLeft = MOTOR_MAX;
+    else if(l < -MOTOR_MAX) targetLeft = -MOTOR_MAX;
+    else targetLeft = l;
 }
 
 void Motors::setRight(int r) { 
-    if(r > MOTOR_MAX) right = MOTOR_MAX;
-    else if(r < -MOTOR_MAX) right = -MOTOR_MAX;
-    else right = r;
+    if(r > MOTOR_MAX) targetRight = MOTOR_MAX;
+    else if(r < -MOTOR_MAX) targetRight = -MOTOR_MAX;
+    else targetRight = r;
 }
 
 void Motors::setDiff(int diff) {
@@ -28,10 +29,8 @@ void Motors::setCommon(int common) {
 }
 
 void Motors::setDiffCommon(int diff, int common) {
-    diff = min(diff, MOTOR_MAX);
-    common = min(common, MOTOR_MAX);
-    int new_left = common + diff;
-    int new_right = common - diff;
+    int new_left = common + (diff / 2);
+    int new_right = common - (diff / 2);
     if(abs(new_left) > MOTOR_MAX) {
         int over = new_left > 0 ? new_left - MOTOR_MAX : new_left + MOTOR_MAX;
         new_left = new_left - over;
@@ -41,32 +40,51 @@ void Motors::setDiffCommon(int diff, int common) {
         new_left = new_left - over;
         new_right = new_right - over;
     }
-    left = new_left;
-    right = new_right;
+    targetLeft = new_left;
+    targetRight = new_right;
 }
 
 int Motors::getLeft() {
-    return left;
+    return targetLeft;
 }
 
 int Motors::getRight() {
-    return right;
+    return targetRight;
 }
 
 int Motors::getDiff() {
-    return left - right;
+    int diff = targetLeft - targetRight;
+    return diff;
 }
 
 int Motors::getCommon() {
-    return (left + right) / 2;
+    int common = (targetLeft + targetRight) / 2;
+    return (targetLeft + targetRight) / 2;
 }
 
 // Write motor values to motor control pins
 void Motors::update() {
-    int mag_left = abs(left);
-    int mag_right = abs(right);
-    int dir_left = left > 0 ? 1 : 0;
-    int dir_right = right > 0 ? 1 : 0;
+    int now = millis();
+    int deltaTime = now - lastUpdateMS;
+    lastUpdateMS = now;
+    float deltaMotor = slewRate * (float)deltaTime / 1000.0;
+
+    // Slew limiting
+    if(targetLeft > (int)actualLeft) {
+        actualLeft = min(targetLeft, actualLeft + deltaMotor);
+    } else if(targetLeft < (int)actualLeft) {
+        actualLeft = max(targetLeft, actualLeft - deltaMotor);
+    }
+    if(targetRight > (int)actualRight) {
+        actualRight = min(targetRight, actualRight + deltaMotor);
+    } else if(targetRight < (int)actualRight) {
+        actualRight = max(targetRight, actualRight - deltaMotor);
+    }
+
+    int mag_left = abs(actualLeft);
+    int mag_right = abs(actualRight);
+    int dir_left = actualLeft > 0 ? 1 : 0;
+    int dir_right = actualRight > 0 ? 1 : 0;
     digitalWrite(PIN_DIR_L, dir_left);
     digitalWrite(PIN_DIR_R, dir_right);
     analogWrite(PIN_SPEED_L, mag_left);

@@ -5,9 +5,9 @@ void Nav::init() {
 
     #ifdef SIMULATION
         // Load simulator coordinates
-        addWaypoint(49.245797,-122.958898);
-        addWaypoint(49.245799,-122.958306);
-        addWaypoint(49.246044,-122.958551);
+        waypoints.addWaypoint(49.245797,-122.958898);
+        waypoints.addWaypoint(49.245799,-122.958306);
+        waypoints.addWaypoint(49.246044,-122.958551);
     #else
     #endif
 
@@ -52,9 +52,11 @@ void Nav::update() {
                 double angle = gps->getCourseRadians();
                 position = Point(gps->getLat(), gps->getLon()).getVec3d(angle);
                 velocity = Vec3d(gps->getSpeedX(), gps->getSpeedY(), mpu->getGZ());
-                nextWaypoint = getNearestWaypoint();
-                if(nextWaypoint >= 0) {
-                    LOGV("Closest waypoint: ", nextWaypoint);
+                Point nextWP;
+                int index = waypoints.getNearestWaypoint(Point(position), nextWP);
+                if(index >= 0) {
+                    LOGV("Closest waypoint: ", index);
+                    waypoints.setDestination(index);
                     navState = NAV_STATE_RUN;
                 } else {
                     LOG("Could not find closest waypoint. Halting");
@@ -68,11 +70,19 @@ void Nav::update() {
             updateVectors(timeDeltaMS);
 
             // Figure angle and distance to nearest waypoint
-            Point wp = waypoints[nextWaypoint];
+            Point target;
+            waypoints.getDestination(target);
             Point pos = Point(position);
-            Point toTarget = wp - pos;
+            Point toTarget = target - pos;
             double targetDist = toTarget.getDist();
             double targetAngle = toTarget.getAngle();
+
+            // Check if waypoint is reached
+            if(targetDist < NAV_DISTANCE_ARRIVAL)
+            {
+                waypoints.incrementDestination();
+                break;
+            }
 
             // Get closest distance from current heading to target angle
             double errorAngle = targetAngle - position.getZ();
@@ -83,6 +93,7 @@ void Nav::update() {
                     errorAngle = errorAngle - 2 * PI;
                 }
             }
+            lastError = errorAngle;
 
             // Calculate new motor commands
             // Differential term
@@ -93,17 +104,12 @@ void Nav::update() {
             // Common term
             float motorCommon = 30;
 
-#ifdef SIMULATION
-            if(debugLog) {
-                LOGV("TA:  ", targetAngle);
-                LOGV("Err: ", errorAngle);
-                LOGV("Pterm: ", pTerm);
-                LOGV("Dterm: ", dTerm);
-                LOGV("MDf: ", motorDiff)
-            }
-#endif
-
             Motors::instance().setDiffCommon(motorDiff, motorCommon);
+            break;
+        }
+        case NAV_STATE_MANUAL:
+        {
+            updateVectors(timeDeltaMS);
             break;
         }
         case NAV_STATE_HALT:
@@ -146,13 +152,21 @@ void Nav::updateVectors(int timeDeltaMS) {
     }
 }
 
-int Nav::addWaypoint(double lat, double lon) {
+
+// Waypoints functions
+
+int WaypointList::addWaypoint(double lat, double lon) {
+        Point newWP(lat, lon);
+        return addWaypoint(newWP);
+}
+
+int WaypointList::addWaypoint(Point wp) {
     if(numWaypoints < MAX_WAYPOINTS) {
-        waypoints[numWaypoints] = Point(lat, lon);
+        waypoints[numWaypoints] = wp;
         numWaypoints++;
         LOG("New waypoint");
-        LOGV("Lat: ", lat);
-        LOGV("Lon: ", lon);
+        LOGV("Lat: ", wp.getLat());
+        LOGV("Lon: ", wp.getLon());
         return 0;
     } else {
         LOG("Max waypoints filled");
@@ -160,8 +174,15 @@ int Nav::addWaypoint(double lat, double lon) {
     }
 }
 
-// Get closest waypoint to current position
-int Nav::getNearestWaypoint() {
+int WaypointList::getWaypoint(int index, Point &wp) {
+    if(index > 0 && numWaypoints > 0 && destination >= 0) {
+        wp = waypoints[index];
+        return 0;
+    }
+    return 1;
+}
+
+int WaypointList::getNearestWaypoint(Point target, Point &wp) {
     if(numWaypoints == 0) {
         LOG("No waypoints loaded");
         return -1;
@@ -169,9 +190,8 @@ int Nav::getNearestWaypoint() {
     int closest = -1;
     double closestDist = 100000.0;
     for(int i = 0; i < (int)numWaypoints; i++) {
-        Point position = Point(position);
         Point wp = waypoints[i];
-        double dist = (wp - position).getDist();
+        double dist = (wp - target).getDist();
         LOGV("wp distance: ", dist);
         if(dist < closestDist) {
             closestDist = dist;
@@ -181,21 +201,26 @@ int Nav::getNearestWaypoint() {
     return closest;
 }
 
-int Nav::getNearestWaypoint(Point &wp) {
-    int i = getNearestWaypoint();
-    wp = waypoints[i];
-    return i;
+int WaypointList::getDestination(Point &wp) {
+    return getWaypoint(destination, wp);
 }
 
-int Nav::getNextWaypoint() {
-    return nextWaypoint;
+int WaypointList::setDestination(unsigned index) {
+    if((int)index < numWaypoints) {
+        destination = index;
+        return 0;
+    }
+    return 1;
 }
 
-int Nav::getNextWaypoint(Point &wp) {
-    wp = waypoints[nextWaypoint];
-    return nextWaypoint;
+int WaypointList::incrementDestination() {
+    if(numWaypoints > 0) {
+        destination = (destination + 1) % numWaypoints;
+        return 0;
+    }
+    return -1;
 }
 
-void Nav::incrementNextWaypoint() {
-    nextWaypoint = (nextWaypoint + 1) % numWaypoints;
+int WaypointList::length() {
+    return numWaypoints;
 }

@@ -43,8 +43,8 @@ class MPU9250 {
         char buff[64];
         TwoWire *i2c;
         uint8_t address;
-        uint16_t gxRaw, gyRaw, gzRaw;
-        uint16_t axRaw, ayRaw, azRaw;
+        int16_t gxRaw, gyRaw, gzRaw;
+        int16_t axRaw, ayRaw, azRaw;
         float gx, gy, gz;
         float ax, ay, az;
 };

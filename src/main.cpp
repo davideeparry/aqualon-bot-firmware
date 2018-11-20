@@ -18,7 +18,7 @@ void setup() {
     Serial.begin(115200);
     Wire.begin();
     Wire.setClock(400000); 
-    delay(5000);
+    delay(1000);
     LOG("In setup()");
     Communications::instance().init(Serial);
     // this is a service design pattern
@@ -62,12 +62,47 @@ void debugUpdate() {
             Nav::instance().setNavState(NAV_STATE_HALT);
             break;
 
+        case 'm':
+        case 'M':
+            // Set nav to halt
+            Nav::instance().setNavState(NAV_STATE_MANUAL);
+            break;
+        
+        // Manual motor control commands
+        case 'w':
+        {
+            int motorComm = Motors::instance().getCommon();
+            Motors::instance().setCommon(motorComm + 10);
+            break;
+        }
+
+        case 's':
+        {
+            int motorComm = Motors::instance().getCommon();
+            Motors::instance().setCommon(motorComm - 10);
+            break;
+        }
+
+        case 'd':
+        {
+            int motorDiff = Motors::instance().getDiff();
+            Motors::instance().setDiff(motorDiff + 10);
+            break;
+        }
+
+        case 'a':
+        {
+            int motorDiff = Motors::instance().getDiff();
+            Motors::instance().setDiff(motorDiff - 10);
+            break;
+        }
+
         default:
             break;
     }
 
     // Log system state to monitor
-    static Metro logTimer = Metro(3000);
+    static Metro logTimer = Metro(500);
     if(1 == logTimer.check()) {
         Gps* gps = &Gps::instance();
         Nav* nav = &Nav::instance();
@@ -75,18 +110,12 @@ void debugUpdate() {
         char logBuff[100];
         Vec3d pos = nav->getPosition();
         Vec3d vel = nav->getVelocity();
-        sprintf(logBuff, "Lat: %7.4f (x:%4.3f), Lon: %7.4f (y:%4.2f), \nP:[%6.2f,%6.2f,%6.2f], V:[%6.2f,%6.2f,%6.2f]", 
-                gps->getLat(), pos.getX(), gps->getLon(), pos.getY(), 
-                pos.getX(), pos.getY(), pos.getZ(),
-                vel.getX(), vel.getY(), vel.getZ());
-        LOG(logBuff);
-
-        Point wp;
-        int wpi = nav->getNextWaypoint(wp);
         int ml = Motors::instance().getLeft();
         int mr = Motors::instance().getRight();
-        sprintf(logBuff, "WP %d of %u: (%5.2f,%4.2f), Motors: (%d, %d), State: %d\n", 
-                wpi, nav->getNumWaypoints(), wp.getX(), wp.getY(), ml, mr, nav->getNavState());
+        sprintf(logBuff, "P:[%6.2f,%6.2f,%6.2f], V:[%6.2f,%6.2f,%6.2f], M:(%d, %d), Err: %4.2f, S:%d", 
+                pos.getX(), pos.getY(), pos.getZ(),
+                vel.getX(), vel.getY(), vel.getZ(), 
+                ml, mr, nav->getLastError(), nav->getNavState());
         LOG(logBuff);
     }
 }

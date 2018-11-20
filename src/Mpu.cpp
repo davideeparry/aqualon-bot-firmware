@@ -20,7 +20,6 @@ void Mpu::update() {
         LOGV("IMU read failed, code: ", rc);
         return;
     }
-    StateService* state = &StateService::instance();
     gx = IMU->getGyroX_rads();
     gy = IMU->getGyroY_rads();
     gz = IMU->getGyroZ_rads();

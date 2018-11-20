@@ -22,13 +22,11 @@ void Gps::update()
     }
 
     if(gps.course.isUpdated() && gps.course.isValid()) {
-        // LOG("GPS: New course (heading)")
         courseRadians = PI * gps.course.deg() / 180.0;
         newData = 1;
     }
 
     if(gps.speed.isUpdated() && gps.speed.isValid()) {
-        // LOG("GPS: New speed")
         speed = gps.speed.mps();
         newData = 1;
     }
