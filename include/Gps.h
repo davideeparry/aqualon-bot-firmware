@@ -11,7 +11,7 @@
 #include <Metro.h>
 
 #define GPS_DEFAULT_UPDATE_RATE     20   // 50 is bare minimum to keep up with serial buffer
-#define GPS_DEBUG_LOG_RATE          5000
+#define GPS_DEBUG_LOG_RATE          1000
 #define gpsSerial Serial1
 
 class Gps 

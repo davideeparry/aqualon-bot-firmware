@@ -4,7 +4,7 @@
 #include "Arduino.h"
 #include <Metro.h>
 
-#define MOTOR_MAX   60
+#define MOTOR_MAX   200
 #define PIN_SPEED_L 3
 #define PIN_SPEED_R 4
 #define PIN_DIR_L   5

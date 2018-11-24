@@ -14,23 +14,27 @@
 //       returned by the GPS module. 
 class Point {
     public:
-        Point() {};
+        Point();
         Point(double latitude, double longitude);
         Point(Vec3d vec);
         double getLat();
         double getLon();
-        double getX();
-        double getY();
-        double getDist();
-        double getAngle();
-        Vec3d getVec3d(double angle);
+        float getX();
+        float getY();
+        float getDist();
+        float getAngle();
+        Vec3d getVec3d(float angle);
         friend Point operator+(Point a, Point b);
         friend Point operator-(Point a, Point b);
+        operator bool() const { return valid; };
     private:
-        static double origin_x;
-        static double origin_y;
-        static double lon_scale;  // Longitude scaling factor, based on latitude
-        static bool origin_set;
+        static double originLat;
+        static double originLon;
+        static double lonScale;  // Longitude scaling factor, based on latitude
+        static bool originSet;
+        void setOrigin(double lat, double lon);
+
+        bool valid;
 
         double lat;
         double lon;

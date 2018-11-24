@@ -14,6 +14,7 @@ void Mpu::init() {
 }
 
 void Mpu::update() {
+    // LOG("MPU update");
     if(1 != timer.check()) return;
     int rc = IMU->readSensor();
     if(rc < 0) {

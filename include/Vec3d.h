@@ -6,18 +6,20 @@
 class Vec3d {
     public:
         Vec3d() {};
-        Vec3d(double x, double y, double z) : x(x), y(y), z(z) {};
-        double getX();
-        double getY();
-        double getZ();
+        Vec3d(float x, float y, float z) : x(x), y(y), z(z) {};
+        float getX();
+        float getY();
+        float getZ();
         friend Vec3d operator+(Vec3d a, Vec3d b);
         friend Vec3d operator-(Vec3d a, Vec3d b);
         friend Vec3d operator*(Vec3d v, float s); // scalar multiplication
         friend Vec3d operator/(Vec3d v, float s); // scalar multiplication
     private:
-        double x;
-        double y;
-        double z;
+        float x;
+        float y;
+        float z;
 };
+
+Vec3d rotate(Vec3d input, float angle);
 
 #endif 

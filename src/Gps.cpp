@@ -9,6 +9,7 @@ char gps_tmp_buff[128];
 
 void Gps::update() 
 {
+    // LOG("GPS Update");
     if(1 != timer.check()) return;
 
     while(gpsSerial.available() > 0) gps.encode(gpsSerial.read());
@@ -29,6 +30,14 @@ void Gps::update()
     if(gps.speed.isUpdated() && gps.speed.isValid()) {
         speed = gps.speed.mps();
         newData = 1;
+    }
+
+
+    if(1 == debugTimer.check()) {
+        // LOGV("GPS Lat: ", lat);
+        // LOGV("    Lon: ", lon);
+        // LOGV("    Speed: ", speed);
+        // LOGV("    Head: ", courseRadians);
     }
     //Communications::instance().sendMessage("hit SERIAL");
 };

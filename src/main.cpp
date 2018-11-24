@@ -18,7 +18,7 @@ void setup() {
     Serial.begin(115200);
     Wire.begin();
     Wire.setClock(400000); 
-    delay(1000);
+    delay(5000);
     LOG("In setup()");
     Communications::instance().init(Serial);
     // this is a service design pattern
@@ -102,20 +102,22 @@ void debugUpdate() {
     }
 
     // Log system state to monitor
-    static Metro logTimer = Metro(500);
+    static Metro logTimer = Metro(2000);
     if(1 == logTimer.check()) {
         Gps* gps = &Gps::instance();
         Nav* nav = &Nav::instance();
 
-        char logBuff[100];
+        char logBuff[256];
         Vec3d pos = nav->getPosition();
         Vec3d vel = nav->getVelocity();
         int ml = Motors::instance().getLeft();
         int mr = Motors::instance().getRight();
-        sprintf(logBuff, "P:[%6.2f,%6.2f,%6.2f], V:[%6.2f,%6.2f,%6.2f], M:(%d, %d), Err: %4.2f, S:%d", 
+        Point wp = nav->getTarget();
+        sprintf(logBuff, "P:[%6.2f,%6.2f,%6.2f], V:[%6.2f,%6.2f,%6.2f], Lat:%8.6f, Lon:%8.6f, M:(%d, %d), ErA: %4.5f, ErD: %4.2f S:%d, WP: (%4.2f,%4.2f)", 
                 pos.getX(), pos.getY(), pos.getZ(),
-                vel.getX(), vel.getY(), vel.getZ(), 
-                ml, mr, nav->getLastError(), nav->getNavState());
+                vel.getX(), vel.getY(), vel.getZ(), gps->getLat(), gps->getLon(),
+                ml, mr, nav->getErrAngle(), nav->getErrDist(), 
+                nav->getNavState(), wp.getX(), wp.getY());
         LOG(logBuff);
     }
 }

@@ -4,39 +4,43 @@
 #include "Mpu.h"
 #include "Motors.h"
 #include "Debug.h"
+#include <assert.h>
 
 // Navigation
 // Some of these should just be defaults for changeable values stored in the nav object
 #define MAX_WAYPOINTS       128
 #define DISCOVERY_TIME_MS   3000
-#define GPS_MIN_SPEED       0.5
-#define GPS_WEIGHT          0.5
-#define DEFAULT_P_GAIN      0.8
-#define DEFAULT_D_GAIN      0
+#define GPS_MIN_SPEED       0.1
+#define GPS_MAX_GYRO        0.05
+#define GPS_POS_WEIGHT      0.5
+#define GPS_COURSE_WEIGHT   0.7
+#define DEFAULT_P_GAIN      (1.0)
+#define DEFAULT_D_GAIN      (-1.0)
 #define DEFAULT_I_GAIN      0
 #define DEFAULT_I_CLAMP     (0.1 * PI)
+
+#define DEFAULT_P_GAIN_COMM ()
 #define DEFAULT_DRIVE_GAIN  (10.0)
-#define NAV_DEFAULT_UPDATE_RATE     100
+#define NAV_DEFAULT_UPDATE_RATE     30
+#define NAV_DEBUG_RATE              3000
 
 #define NAV_DISTANCE_ARRIVAL        4
 #define NAV_DISTANCE_THRESHOLD
 
 class WaypointList {
     public:
-        WaypointList(): destination(-1), 
-                        numWaypoints(0) {};
-        int addWaypoint(double lat, double lon);
-        int addWaypoint(Point wp);
-        int getWaypoint(int index, Point &wp);
-        int getNearestWaypoint(Point target, Point &wp);
-        int getDestination(Point &wp);
-        int setDestination(unsigned index);
-        int incrementDestination();
-        int length();
+        WaypointList(): size(0) {};
+
+        int add(double lat, double lon);
+        int add(Point wp);
+        Point get(unsigned index);
+        int getNearest(Point target);
+        size_t length();
+        void print();
+
     private:
         Point waypoints[MAX_WAYPOINTS];
-        unsigned numWaypoints;
-        int destination;
+        size_t size;
 };
 
 enum NavigationState
@@ -50,19 +54,57 @@ enum NavigationState
 
 class Nav {
     private:
-        Metro timer;
         Nav() : timer(Metro(NAV_DEFAULT_UPDATE_RATE)), 
-                navState(NAV_STATE_STARTUP),
-                numWaypoints(0) {};
+                debugTimer(Metro(NAV_DEBUG_RATE)),
+                navState(NAV_STATE_STARTUP), 
+                gps(&Gps::instance()), 
+                mpu(&Mpu::instance()),
+
+                // PID loop parameters
+                angleToDiffP(10), 
+                angleToDiffD(-20), 
+                angleToCommP(-40), 
+                angleToCommD(0), 
+                distClamp(5),       // Max proportional distance error
+                angleClamp(1.0),    // For commmon mode only
+                distToDiffP(0), 
+                distToDiffD(0), 
+                distToCommP(10),
+                distToCommD(0),
+                diffGain(2.0),
+                commGain(2.0),
+
+                targetWaypoint(-1)
+                {};
+
+        Metro timer;
+        Metro debugTimer;
+        bool debugLog;
+        int discoveryStartTime;
 
         NavigationState navState;
-        WaypointList waypoints;
-        unsigned numWaypoints;
-        Point currentDestination;
+
+        Gps* gps;
+        Mpu* mpu;
+
         int lastUpdateTime;
         Vec3d position;
         Vec3d velocity;
-        double lastError;
+        Vec3d acceleration;
+        float errAngle;
+        float errDist;
+        float lastErrDist;
+
+        Point target;
+        int targetWaypoint;
+
+        // PID terms
+        float angleToDiffP, angleToDiffD, 
+              angleToCommP, angleToCommD, 
+              distClamp, angleClamp,
+              distToDiffP, distToDiffD, 
+              distToCommP, distToCommD, 
+              diffGain, commGain;
 
     public:
         static Nav& instance() {
@@ -72,16 +114,27 @@ class Nav {
         void init();
         void update();
 
+        void initVectors();
         void updateVectors(int timeDeltaMS);
-        int addWaypoint(double lat, double lon);
-        unsigned getNumWaypoints() { return waypoints.length(); };
-        int getDestination(Point &wp) { }
+        void initErr();
+        void updateErr();
+
+        Point getTarget();
+        void setTarget(Point wp);
+        int setTarget(unsigned index);
+        int setTargetNearest();
+        int setTargetNext();
+
         void setNavState(NavigationState state) { navState = state; };
         int getNavState() { return navState; };
-        double getLastError() { return lastError; };
 
         Vec3d getPosition() { return position; };
         Vec3d getVelocity() { return velocity; };
+        Vec3d getAcceleration() { return acceleration; };
+        float getErrAngle() { return errAngle; };
+        float getErrDist()  { return errDist; };
+
+        WaypointList waypoints;
 };
 
 #endif // NAV_H

@@ -1,6 +1,7 @@
 #include "Motors.h"
 
 void Motors::init() {
+    LOG("Motors init");
     pinMode(PIN_DIR_L, OUTPUT);
     pinMode(PIN_DIR_R, OUTPUT);
     lastUpdateMS = millis();
@@ -59,11 +60,14 @@ int Motors::getDiff() {
 
 int Motors::getCommon() {
     int common = (targetLeft + targetRight) / 2;
-    return (targetLeft + targetRight) / 2;
+    return common;
 }
 
 // Write motor values to motor control pins
 void Motors::update() {
+    // LOG("Motors update");
+    if(1 != timer.check()) return;
+
     int now = millis();
     int deltaTime = now - lastUpdateMS;
     lastUpdateMS = now;
