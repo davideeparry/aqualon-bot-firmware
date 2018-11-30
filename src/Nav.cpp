@@ -4,12 +4,21 @@
 void Nav::init() {
 
     LOG("NAV Init")
-    #if defined(SIMULATION) || defined(LABBUILD)
+    // #if defined(SIMULATION) || defined(LABBUILD)
+    #if 1
         // Load simulator coordinates
+        // Trout Lake North
+        /*
         waypoints.add(49.257182,-123.062937);
         waypoints.add(49.257042,-123.062331);
         waypoints.add(49.256752,-123.062331);
         waypoints.add(49.256907,-123.062930);
+        */
+        // AQ Pond
+        waypoints.add(49.279003,-122.917036);
+        waypoints.add(49.279279,-122.916931);
+        waypoints.add(49.279272,-122.916784);
+        waypoints.add(49.279126,-122.916831);
     #else
     #endif
 

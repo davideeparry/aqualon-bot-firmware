@@ -17,7 +17,7 @@ void setup() {
     Serial.begin(115200);
     Wire.begin();
     Wire.setClock(400000); 
-    delay(5000);
+    delay(10000);
     LOG("In setup()");
     Communications::instance().init(Serial);
     // this is a service design pattern
