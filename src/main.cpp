@@ -1,5 +1,4 @@
 #include "Arduino.h"
-#include <Wire.h>
 #include "StateService.h"
 #include "Communications.h"
 #include "Database.h"
@@ -35,7 +34,7 @@ void loop() {
     Mpu::instance().update();
     Nav::instance().update();
     Motors::instance().update();
-    #ifdef SIMULATION
+    #if defined(SIMULATION) || defined(LABBUILD)
     debugUpdate();
     #endif
 }
@@ -72,28 +71,28 @@ void debugUpdate() {
         case 'w':
         {
             int motorComm = Motors::instance().getCommon();
-            Motors::instance().setCommon(motorComm + 10);
+            Motors::instance().setCommon(motorComm + 100);
             break;
         }
 
         case 's':
         {
             int motorComm = Motors::instance().getCommon();
-            Motors::instance().setCommon(motorComm - 10);
+            Motors::instance().setCommon(motorComm - 100);
             break;
         }
 
         case 'd':
         {
             int motorDiff = Motors::instance().getDiff();
-            Motors::instance().setDiff(motorDiff + 10);
+            Motors::instance().setDiff(motorDiff + 100);
             break;
         }
 
         case 'a':
         {
             int motorDiff = Motors::instance().getDiff();
-            Motors::instance().setDiff(motorDiff - 10);
+            Motors::instance().setDiff(motorDiff - 100);
             break;
         }
 

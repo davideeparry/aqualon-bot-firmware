@@ -2,7 +2,7 @@
 
 void Mpu::init() {
     LOG("Initializing MPU")
-    IMU = new MPU9250(Wire,0x68);
+    IMU = new MPU9250(Wire, 0x68);
     int status = IMU->begin();
     if (status < 0) {
         LOGV("IMU initialization failed, status:", status);

@@ -4,7 +4,7 @@
 void Nav::init() {
 
     LOG("NAV Init")
-    #ifdef SIMULATION
+    #if defined(SIMULATION) || defined(LABBUILD)
         // Load simulator coordinates
         waypoints.add(49.257182,-123.062937);
         waypoints.add(49.257042,-123.062331);
@@ -35,8 +35,9 @@ void Nav::update() {
                 LOG("Nav: got GPS, switching to discovery");
                 LOGV("Lat: ", gps->getLat());
                 LOGV("Lon: ", gps->getLon());
-                Motors::instance().setLeft(30);
-                Motors::instance().setRight(30);
+                int forward = MOTOR_MAX / 2;
+                Motors::instance().setLeft(forward);
+                Motors::instance().setRight(forward);
                 discoveryStartTime = millis();
                 gps->markOld();
                 navState = NAV_STATE_DISCOVERY;
@@ -111,7 +112,7 @@ void Nav::initVectors() {
     // int index = setTargetNearest();
     LOG("Waypoints:");
     waypoints.print();
-    int index = setTarget(0);
+    int index = setTarget(1);
     if(index >= 0) {
         LOGV("Starting waypoint: ", index);
         navState = NAV_STATE_RUN;

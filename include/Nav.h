@@ -13,15 +13,9 @@
 #define GPS_MIN_SPEED       0.1
 #define GPS_MAX_GYRO        0.05
 #define GPS_POS_WEIGHT      0.5
-#define GPS_COURSE_WEIGHT   0.7
-#define DEFAULT_P_GAIN      (1.0)
-#define DEFAULT_D_GAIN      (-1.0)
-#define DEFAULT_I_GAIN      0
-#define DEFAULT_I_CLAMP     (0.1 * PI)
+#define GPS_COURSE_WEIGHT   0.4
 
-#define DEFAULT_P_GAIN_COMM ()
-#define DEFAULT_DRIVE_GAIN  (10.0)
-#define NAV_DEFAULT_UPDATE_RATE     30
+#define NAV_DEFAULT_UPDATE_RATE     10
 #define NAV_DEBUG_RATE              3000
 
 #define NAV_DISTANCE_ARRIVAL        4
@@ -61,18 +55,18 @@ class Nav {
                 mpu(&Mpu::instance()),
 
                 // PID loop parameters
-                angleToDiffP(10), 
-                angleToDiffD(-20), 
-                angleToCommP(-40), 
+                angleToDiffP(7), 
+                angleToDiffD(-40), 
+                angleToCommP(-60), 
                 angleToCommD(0), 
                 distClamp(5),       // Max proportional distance error
-                angleClamp(1.0),    // For commmon mode only
+                angleClamp(0.8),    // For commmon mode only
                 distToDiffP(0), 
                 distToDiffD(0), 
                 distToCommP(10),
                 distToCommD(0),
-                diffGain(2.0),
-                commGain(2.0),
+                diffGain(16.0),
+                commGain(16.0),
 
                 targetWaypoint(-1)
                 {};

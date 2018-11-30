@@ -4,13 +4,21 @@
 #include "Arduino.h"
 #include <Metro.h>
 
-#define MOTOR_MAX   200
+// #define MOTOR_MAX   60
+#define MOTOR_MAX   960  // 12 bit resolution
+#if defined(SIMULATION)
 #define PIN_SPEED_L 3
-#define PIN_SPEED_R 4
-#define PIN_DIR_L   5
+#define PIN_DIR_L   4
+#define PIN_SPEED_R 5
 #define PIN_DIR_R   6
+#else
+#define PIN_SPEED_L 2
+#define PIN_DIR_L   3
+#define PIN_SPEED_R 4
+#define PIN_DIR_R   5
+#endif
 
-#define MOTOR_DEFAULT_SLEW_RATE     10.0
+#define MOTOR_DEFAULT_SLEW_RATE     1000.0
 #define MOTOR_DEFAULT_UPDATE_RATE   100
 #define MOTOR_DEBUG_UPDATE_RATE     3000
 

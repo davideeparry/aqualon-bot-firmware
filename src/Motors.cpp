@@ -4,6 +4,7 @@ void Motors::init() {
     LOG("Motors init");
     pinMode(PIN_DIR_L, OUTPUT);
     pinMode(PIN_DIR_R, OUTPUT);
+    analogWriteResolution(12);
     lastUpdateMS = millis();
 }
 
@@ -46,11 +47,11 @@ void Motors::setDiffCommon(int diff, int common) {
 }
 
 int Motors::getLeft() {
-    return targetLeft;
+    return actualLeft;
 }
 
 int Motors::getRight() {
-    return targetRight;
+    return actualRight;
 }
 
 int Motors::getDiff() {
@@ -85,10 +86,10 @@ void Motors::update() {
         actualRight = max(targetRight, actualRight - deltaMotor);
     }
 
-    int mag_left = abs(actualLeft);
-    int mag_right = abs(actualRight);
+    int mag_left = min(abs(actualLeft), MOTOR_MAX);
+    int mag_right = min(abs(actualRight), MOTOR_MAX);
     int dir_left = actualLeft > 0 ? 1 : 0;
-    int dir_right = actualRight > 0 ? 1 : 0;
+    int dir_right = actualRight > 0 ? 0 : 1;  // Right propellor has opposite twist
     digitalWrite(PIN_DIR_L, dir_left);
     digitalWrite(PIN_DIR_R, dir_right);
     analogWrite(PIN_SPEED_L, mag_left);

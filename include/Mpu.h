@@ -1,13 +1,19 @@
 #ifndef MPU_H
 #define MPU_H
 #include "Arduino.h"
+#include "Wire.h"
+#if defined(SIMULATION)
 #include "MPU9250sim.h"
+#else
+#include "MPU9250.h"
+#endif
 #include "Communications.h"
 #include "Debug.h"
 #include <Metro.h>
 
-#define MPU_DEFAULT_UPDATE_RATE     50
+#define MPU_DEFAULT_UPDATE_RATE     10
 #define MPU_DEBUG_LOG_RATE          3000
+#define MPU_I2C_ADDRESS             0x68
 
 class Mpu {
     private:

@@ -15,7 +15,6 @@ class Database
     File dataLog;
     File systemLog;
     Database(){
-
     };
 
   public:

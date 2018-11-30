@@ -12,7 +12,11 @@
 
 #define GPS_DEFAULT_UPDATE_RATE     20   // 50 is bare minimum to keep up with serial buffer
 #define GPS_DEBUG_LOG_RATE          1000
+#if defined(SIMULATION)
 #define gpsSerial Serial1
+#else
+#define gpsSerial Serial4
+#endif
 
 class Gps 
 {
