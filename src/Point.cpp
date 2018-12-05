@@ -34,9 +34,7 @@ void Point::setOrigin(double latitude, double longitude) {
     originLat = latitude + 0.000001;  // Add offset so point isn't right on 0
     originLon = longitude + 0.000001;
     originSet = true;
-    LOG("Point, setting origin");
-    LOGV("    Lat: ", latitude);
-    LOGV("    Lon: ", longitude);
+    LogInfo("Point, setting origin, Lat: %f, Lon: %f", longitude, latitude);
 }
 
 double Point::getLon() { return lon; }

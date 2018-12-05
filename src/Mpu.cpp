@@ -1,24 +1,23 @@
 #include "Mpu.h"
 
 void Mpu::init() {
-    LOG("Initializing MPU")
+    LogInfo("Initializing MPU");
     IMU = new MPU9250(Wire, 0x68);
     int status = IMU->begin();
     if (status < 0) {
-        LOGV("IMU initialization failed, status:", status);
+        LogError("IMU initialization failed, status:", status);
     } else {
-        LOGV("IMU initialization successful, status: ", status);
+        LogInfo("IMU initialization successful, status: ", status);
     } 
     IMU->setAccelRange(MPU9250::ACCEL_RANGE_2G);
     IMU->setGyroRange(MPU9250::GYRO_RANGE_250DPS);
 }
 
 void Mpu::update() {
-    // LOG("MPU update");
     if(1 != timer.check()) return;
     int rc = IMU->readSensor();
     if(rc < 0) {
-        LOGV("IMU read failed, code: ", rc);
+        LogError("IMU read failed, code: ", rc);
         return;
     }
     gx = IMU->getGyroX_rads();
@@ -29,6 +28,6 @@ void Mpu::update() {
     az = IMU->getAccelZ_mss();
     newData = 1;
     if(1 == debugTimer.check()) {
-        LOGV("IMU Gyro Z: ", gz);
+        LogInfo("IMU Gyro Z: %f", gz);
     }
 }

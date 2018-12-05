@@ -14,14 +14,14 @@ void Database::init()
 void Database::writeToDataLog(String msg)
 {
     dataLog = SD.open(dataLogId, FILE_WRITE); // needs callback
-    dataLog.println(msg);
+    dataLog.print(msg);
     dataLog.close();
 };
 
 void Database::writeToSystemLog(String msg)
 {
     systemLog = SD.open(systemLogId, FILE_WRITE); // needs callback
-    systemLog.println(msg);
+    systemLog.print(msg);
     systemLog.close();
 };
 

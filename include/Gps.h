@@ -6,12 +6,16 @@
 #include "TinyGPS++.h"
 #include "StateService.h"
 #include "Communications.h"
-#include "Debug.h"
+#include "Logging.h"
 #include "Constants.h"
 #include <Metro.h>
+#include <TimeLib.h>
 
 #define GPS_DEFAULT_UPDATE_RATE     20   // 50 is bare minimum to keep up with serial buffer
 #define GPS_DEBUG_LOG_RATE          1000
+#define GPS_TIME_SYNC_RATE          (60 * 60 * 24)  // In seconds, for setSyncInterval
+#define GPS_TIMEZONE_OFFSET_PACIFIC (-8)
+
 #if defined(SIMULATION)
 #define gpsSerial Serial1
 #else
@@ -28,13 +32,19 @@ class Gps
         float flat, flon;
         unsigned long age;
         Gps() : timer(Metro(GPS_DEFAULT_UPDATE_RATE)),
-                debugTimer(Metro(GPS_DEBUG_LOG_RATE)) {};
+                debugTimer(Metro(GPS_DEBUG_LOG_RATE)),
+                timeZoneOffset(GPS_TIMEZONE_OFFSET_PACIFIC)
+                {};
 
         double courseRadians;
         double speed;
         double lat;
         double lon;
         bool newData;
+
+        // Time
+        time_t getTime();
+        int timeZoneOffset;
 
     public:
         static Gps& instance() {
@@ -57,6 +67,7 @@ class Gps
         double getLon() { return lon; };
         bool isNew() { return newData; };
         void markOld() { newData = 0; }
+        friend time_t gpsGetTime();  // Wrapper function for TimeLib sync
 };
 
 #endif

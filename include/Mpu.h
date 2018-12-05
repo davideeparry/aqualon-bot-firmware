@@ -8,7 +8,7 @@
 #include "MPU9250.h"
 #endif
 #include "Communications.h"
-#include "Debug.h"
+#include "Logging.h"
 #include <Metro.h>
 
 #define MPU_DEFAULT_UPDATE_RATE     10

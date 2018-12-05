@@ -3,7 +3,7 @@
 
 void Nav::init() {
 
-    LOG("NAV Init")
+    LogInfo("NAV Init");
     // #if defined(SIMULATION) || defined(LABBUILD)
     #if 1
         // Load simulator coordinates
@@ -41,10 +41,10 @@ void Nav::update() {
         {
             // Wait until we have first GPS reading
             if(gps->isNew()) {
-                LOG("Nav: got GPS, switching to discovery");
-                LOGV("Lat: ", gps->getLat());
-                LOGV("Lon: ", gps->getLon());
-                int forward = MOTOR_MAX / 2;
+                LogInfo("Nav: got GPS, switching to discovery");
+                LogInfo("Lat: ", gps->getLat());
+                LogInfo("Lon: ", gps->getLon());
+                int forward = (MOTOR_MAX / 3) * 2;
                 Motors::instance().setLeft(forward);
                 Motors::instance().setRight(forward);
                 discoveryStartTime = millis();
@@ -74,22 +74,36 @@ void Nav::update() {
             }
 
             // Calculate new motor commands
+            static const float anglePtoDClampValue = 2.0;
+            static const float anglePtoCClampValue = 0.8;
+            static const float distPtoCClampValue = 6; // Start slowing when this far from target
+
+            static const float targetCommon = 0.7;
+            static const float targetDiff = 0.7;
+            static const float anglePtoCCoeff = targetCommon / anglePtoCClampValue;
+            static const float distPtoCCoeff = targetCommon / distPtoCClampValue;
+            static const float anglePtoDCoeff = targetDiff / anglePtoDClampValue;
+            static const float angleDtoDCoeff = -2.0;
+
             float angleP = errAngle;
-            float angleD = velocity.getZ();
-            float distP = min(errDist, distClamp);
+            float anglePtoDClamp = min(angleP, anglePtoDClampValue);
+            float anglePtoCClamp = min(angleP, anglePtoCClampValue);
+            // float angleD = velocity.getZ();
+            float angleD = (errAngle - lastErrAngle) / (timeDeltaMS / 1000.0);
+            float distP = errDist;
+            float distPtoCClamp = min(errDist, distPtoCClampValue);
             float distD = Gps::instance().getSpeed();
 
             // Differential term
-            float motorDiff = ((angleP * angleToDiffP) + (angleD * angleToDiffD) + 
-                              (distP * distToDiffP) + (distD * distToDiffD)) * diffGain;
-            if(debugLog) LOGV("New motor diff:", motorDiff);
+            float motorDiff = (anglePtoDClamp * anglePtoDCoeff) - (angleD * angleDtoDCoeff);
+            // if(debugLog) LOGV("New motor diff:", motorDiff);
 
             // Common term
-            float anglePComm = min(abs(angleP), angleClamp);
-            float motorComm = ((anglePComm * angleToCommP) + (abs(angleD) * angleToCommD) + 
-                              (distP * distToCommP) + (distD * distToCommD)) * commGain;
-            if(debugLog) LOGV("New motor common:", motorComm);
+            float motorComm = (distPtoCClamp * distPtoCCoeff) - (anglePtoCCoeff * anglePtoCClamp);
+            // float motorComm = ((anglePClampC * angleToCommP) + (abs(angleD) * angleToCommD) + 
+            //                   (distP * distToCommP) + (distD * distToCommD)) * commGain;
 
+            if(debugLog) LogDebug("ErrAP: %4.2f, ErrAD: %4.2f, ErrDP: %4.2f", angleP, angleD, distP)
             Motors::instance().setDiffCommon(motorDiff, motorComm);
             break;
         }
@@ -106,7 +120,7 @@ void Nav::update() {
             break;
         }
         default:
-            LOG("Navigation is in an unknown state. Halting");
+            LogError("Navigation is in an unknown state. Halting");
             navState = NAV_STATE_HALT;
             break;
     }
@@ -114,25 +128,26 @@ void Nav::update() {
 
 void Nav::initVectors() {
     // Discovery time has expired, we should have a valid heading now
-    LOG("Discovery time up. Initializing Vectors.");
+    LogInfo("Discovery time up. Initializing Vectors.");
     double angle = gps->getCourseRadians();
     position = Point(gps->getLat(), gps->getLon()).getVec3d(angle);
     velocity = Vec3d(gps->getSpeedX(), gps->getSpeedY(), mpu->getGZ());
     // int index = setTargetNearest();
-    LOG("Waypoints:");
+    LogInfo("Waypoints:");
     waypoints.print();
     int index = setTarget(1);
     if(index >= 0) {
-        LOGV("Starting waypoint: ", index);
+        LogInfo("Starting waypoint: %d", index);
         navState = NAV_STATE_RUN;
     } else {
-        LOG("Could not find starting waypoint. Halting");
+        LogError("Could not find starting waypoint. Halting");
         navState = NAV_STATE_HALT;
     }
 }
 
 void Nav::initErr() {
     updateErr();
+    lastErrAngle = errAngle;
 }
 
 void Nav::updateVectors(int timeDeltaMS) {
@@ -163,13 +178,17 @@ void Nav::updateVectors(int timeDeltaMS) {
         // Vec3d position_gps = Point(gps->getLat(), gps->getLon()).getVec3d(gps->getCourseRadians());
         float x = (gps_pos.getX() * GPS_POS_WEIGHT) + (position.getX() * (1.0 - GPS_POS_WEIGHT));
         float y = (gps_pos.getY() * GPS_POS_WEIGHT) + (position.getY() * (1.0 - GPS_POS_WEIGHT));
-        float z = (gps_course * GPS_COURSE_WEIGHT) + (position.getZ() * (1.0 - GPS_COURSE_WEIGHT));
+        // float z = (gps_course * GPS_COURSE_WEIGHT) + (position.getZ() * (1.0 - GPS_COURSE_WEIGHT));
+        // Average angles using arctan
+        float pos_z = position.getZ();
+        float z = atan2((sin(pos_z) + sin(gps_course)), (cos(pos_z) + cos(gps_course)));
+        z = fmod(z + 2.0*PI, 2.0*PI);
         if(gps->getSpeed() > GPS_MIN_SPEED && velocity.getZ() < GPS_MAX_GYRO) {
             // Only use gps heading if we're going fast enough and rotating slow enough
+            LogDebug("Nav - GPS term with course: %f & %f -> %f", gps_course, pos_z, z);
             position = Vec3d(x, y, z);
-            LOG("Nav - GPS term with course");
         } else {
-            LOG("Nav - GPS term NO course");
+            LogDebug("Nav - GPS term NO course");
             // Vec3d position_gps = Point(gps->getLat(), gps->getLon()).getVec3d(position.getZ());
             position = Vec3d(x, y, position.getZ());
         }
@@ -180,6 +199,7 @@ void Nav::updateErr() {
     // Update destination errors
     Point target = getTarget();
     if(target) {
+        lastErrAngle = errAngle;
         // Figure angle and distance to nearest waypoint
         Point pos = Point(position);
         Point toTarget = target - pos;
@@ -197,7 +217,7 @@ void Nav::updateErr() {
             }
         }
     } else {
-        LOG("Nav - No target set (target negative)");
+        LogError("Nav - No target set (target negative)");
     }
 }
 
@@ -236,7 +256,7 @@ int Nav::setTargetNearest() {
 int Nav::setTargetNext() {
     if(waypoints.length() > 0) {
         targetWaypoint = (targetWaypoint + 1) % waypoints.length();
-        LOGV("Setting waypoint ", targetWaypoint);
+        LogInfo("Setting waypoint %d", targetWaypoint);
         return targetWaypoint;
     }
     return -1;
@@ -253,12 +273,12 @@ int WaypointList::add(Point wp) {
     if(size < MAX_WAYPOINTS) {
         waypoints[size] = wp;
         size++;
-        LOG("New waypoint");
-        LOGV("Lat: ", wp.getLat());
-        LOGV("Lon: ", wp.getLon());
+        LogInfo("New waypoint");
+        LogInfo("Lat: %f", wp.getLat());
+        LogInfo("Lon: %f", wp.getLon());
         return size - 1;
     } else {
-        LOG("Max waypoints filled");
+        LogError("Max waypoints filled");
         return -1;
     }
 }
@@ -272,7 +292,7 @@ Point WaypointList::get(unsigned index) {
 
 int WaypointList::getNearest(Point target) {
     if(size == 0) {
-        LOG("No waypoints loaded");
+        LogError("No waypoints loaded");
         return -1;
     }
     int closest = -1;
@@ -281,7 +301,7 @@ int WaypointList::getNearest(Point target) {
     for(int i = 0; i < (int)size; i++) {
         thisWP = waypoints[i];
         double dist = (thisWP - target).getDist();
-        LOGV("wp distance: ", dist);
+        LogInfo("wp distance: %f", dist);
         if(dist < closestDist) {
             closestDist = dist;
             closest = i;
@@ -298,7 +318,6 @@ void WaypointList::print() {
     char printbuff[128];
     for(size_t i=0; i<10; i++) {
         Point wp = waypoints[i];
-        sprintf(printbuff, "WP %d, x:%4.2f, y:%4.2f, lat:%8.6f, lon:%8.6f", i, wp.getX(), wp.getY(), wp.getLat(), wp.getLon());
-        LOG(printbuff);
+        LogInfo("WP %d, x:%4.2f, y:%4.2f, lat:%8.6f, lon:%8.6f", i, wp.getX(), wp.getY(), wp.getLat(), wp.getLon());
     }
 }

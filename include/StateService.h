@@ -1,6 +1,6 @@
 #ifndef STATESERVICE_H
 #define STATESERVICE_H
-#include "Debug.h"
+#include "Logging.h"
 #include "Arduino.h"
 #include "Constants.h"
 #include "Point.h"

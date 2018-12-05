@@ -3,23 +3,24 @@
 #include "Gps.h"
 #include "Mpu.h"
 #include "Motors.h"
-#include "Debug.h"
+#include "Logging.h"
 #include <assert.h>
 
 // Navigation
 // Some of these should just be defaults for changeable values stored in the nav object
 #define MAX_WAYPOINTS       128
-#define DISCOVERY_TIME_MS   3000
-#define GPS_MIN_SPEED       0.1
-#define GPS_MAX_GYRO        0.05
+#define DISCOVERY_TIME_MS   10000
+#define GPS_MIN_SPEED       0.1     // Minimum speed to accept gps heading data
+#define GPS_MAX_GYRO        0.05    // Max rotational velocity to accept gps heading data
 #define GPS_POS_WEIGHT      0.5
 #define GPS_COURSE_WEIGHT   0.4
 
 #define NAV_DEFAULT_UPDATE_RATE     10
 #define NAV_DEBUG_RATE              3000
 
-#define NAV_DISTANCE_ARRIVAL        4
-#define NAV_DISTANCE_THRESHOLD
+#define NAV_DISTANCE_ARRIVAL        2
+#define NAV_DISTANCE_THRESHOLD      5
+#define NAV_FORWARD_SPEED           0.6
 
 class WaypointList {
     public:
@@ -55,19 +56,20 @@ class Nav {
                 mpu(&Mpu::instance()),
 
                 // PID loop parameters
+                /*
                 angleToDiffP(7), 
                 angleToDiffD(-40), 
                 angleToCommP(-60), 
                 angleToCommD(0), 
-                distClamp(5),       // Max proportional distance error
+                distClamp(NAV_DISTANCE_THRESHOLD),       // Max proportional distance error
                 angleClamp(0.8),    // For commmon mode only
                 distToDiffP(0), 
                 distToDiffD(0), 
-                distToCommP(10),
+                distToCommP(NAV_FORWARD_SPEED / NAV_DISTANCE_THRESHOLD),
                 distToCommD(0),
-                diffGain(16.0),
-                commGain(16.0),
-
+                diffGain(1.0),
+                commGain(1.0),
+                */
                 targetWaypoint(-1)
                 {};
 
@@ -86,19 +88,12 @@ class Nav {
         Vec3d velocity;
         Vec3d acceleration;
         float errAngle;
+        float lastErrAngle;
         float errDist;
         float lastErrDist;
 
         Point target;
         int targetWaypoint;
-
-        // PID terms
-        float angleToDiffP, angleToDiffD, 
-              angleToCommP, angleToCommD, 
-              distClamp, angleClamp,
-              distToDiffP, distToDiffD, 
-              distToCommP, distToCommD, 
-              diffGain, commGain;
 
     public:
         static Nav& instance() {

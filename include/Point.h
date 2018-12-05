@@ -4,7 +4,7 @@
 #include <math.h>
 #include "Constants.h"
 #include "Vec3d.h"
-#include "Debug.h"
+#include "Logging.h"
 
 // Defines a coordinate in latitude and longitude as well
 // as meters relative to an arbitrary origin (established by the

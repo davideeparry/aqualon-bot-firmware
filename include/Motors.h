@@ -5,8 +5,11 @@
 #include <Metro.h>
 
 // #define MOTOR_MAX   60
-#define MOTOR_MAX   960  // 12 bit resolution
-#if defined(SIMULATION)
+#define MOTOR_OUTPUT_BITS   (12)
+#define MOTOR_FULL_SCALE    (1 << MOTOR_OUTPUT_BITS)
+#define MOTOR_MAX           (MOTOR_FULL_SCALE * 0.25)
+#define MOTOR_MIN           (MOTOR_FULL_SCALE * 0.062)
+#if defined(SIMULATION)  // Teensy 3.2 pinout is different
 #define PIN_SPEED_L 3
 #define PIN_DIR_L   4
 #define PIN_SPEED_R 5
@@ -32,6 +35,8 @@ class Motors {
 
         Metro timer;
         Metro debugTimer;
+
+        int scaleMotorInput(float in);
     
     public:
         Motors() : targetLeft(0), targetRight(0), actualLeft(0), actualRight(0),
@@ -50,16 +55,18 @@ class Motors {
         void init();
         void update();
 
-        void setLeft(int left);
-        void setRight(int right);
-        void setDiff(int diff);
-        void setCommon(int common);
-        void setDiffCommon(int diff, int common);
+        void setLeft(float left);
+        void setRight(float right);
+        void setDiff(float diff);
+        void setCommon(float common);
+        void setDiffCommon(float diff, float common);
 
-        int getLeft();
-        int getRight();
-        int getDiff();
-        int getCommon();
+        float getLeft();
+        float getRight();
+        int getLeftScaled();
+        int getRightScaled();
+        float getDiff();
+        float getCommon();
 };
 
 

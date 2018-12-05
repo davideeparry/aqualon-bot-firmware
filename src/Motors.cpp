@@ -1,80 +1,97 @@
 #include "Motors.h"
 
 void Motors::init() {
-    LOG("Motors init");
+    LogInfo("Motors init");
     pinMode(PIN_DIR_L, OUTPUT);
     pinMode(PIN_DIR_R, OUTPUT);
     analogWriteResolution(12);
     lastUpdateMS = millis();
 }
 
-void Motors::setLeft(int l) { 
-    if(l > MOTOR_MAX) targetLeft = MOTOR_MAX;
-    else if(l < -MOTOR_MAX) targetLeft = -MOTOR_MAX;
-    else targetLeft = l;
+int Motors::scaleMotorInput(float in) {
+    int sign = in < 0 ? -1 : 1;
+    float ain = min(1.0, abs(in)) * (float)MOTOR_MAX;
+    if(ain < MOTOR_MIN) {
+        ain = ain < (MOTOR_MIN / 2.0) ? 0.0 : (float)MOTOR_MIN;
+    }
+    return (int)ain * sign;
 }
 
-void Motors::setRight(int r) { 
-    if(r > MOTOR_MAX) targetRight = MOTOR_MAX;
-    else if(r < -MOTOR_MAX) targetRight = -MOTOR_MAX;
-    else targetRight = r;
+void Motors::setLeft(float l) { 
+    targetLeft = scaleMotorInput(l);
 }
 
-void Motors::setDiff(int diff) {
-    int common = getCommon();
+void Motors::setRight(float r) {
+    targetRight = scaleMotorInput(r);
+}
+
+void Motors::setDiff(float diff) {
+    float common = getCommon();
     setDiffCommon(diff, common);
 }
 
-void Motors::setCommon(int common) {
-    int diff = getDiff();
+void Motors::setCommon(float common) {
+    float diff = getDiff();
     setDiffCommon(diff, common);
 }
 
-void Motors::setDiffCommon(int diff, int common) {
-    int new_left = common + (diff / 2);
-    int new_right = common - (diff / 2);
-    if(abs(new_left) > MOTOR_MAX) {
-        int over = new_left > 0 ? new_left - MOTOR_MAX : new_left + MOTOR_MAX;
+void Motors::setDiffCommon(float diff, float common) {
+    // Set calculate motor output for common and differential terms. 
+    // Overage protection here aims to preserve the differential term
+
+    static const float mmax = 1.0;
+
+    float new_left = common + (diff / 2);
+    float new_right = common - (diff / 2);
+    if(abs(new_left) > mmax) {
+        float over = new_left > 0 ? new_left - mmax : new_left + mmax;
         new_left = new_left - over;
         new_right = new_right - over;
-    } else if(abs(new_right) > MOTOR_MAX) {
-        int over = new_right > 0 ? new_right - MOTOR_MAX: new_right + MOTOR_MAX;
+    } else if(abs(new_right) > mmax) {
+        float over = new_right > 0 ? new_right - mmax: new_right + mmax;
         new_left = new_left - over;
         new_right = new_right - over;
     }
-    targetLeft = new_left;
-    targetRight = new_right;
+    setLeft(new_left);
+    setRight(new_right);
 }
 
-int Motors::getLeft() {
+float Motors::getLeft() {
+    return (float)actualLeft / (float)MOTOR_MAX;
+}
+
+int Motors::getLeftScaled() {
     return actualLeft;
 }
 
-int Motors::getRight() {
+int Motors::getRightScaled() {
     return actualRight;
 }
 
-int Motors::getDiff() {
-    int diff = targetLeft - targetRight;
-    return diff;
+float Motors::getRight() {
+    return (float)actualRight / (float)MOTOR_MAX;
 }
 
-int Motors::getCommon() {
+float Motors::getDiff() {
+    int diff = targetLeft - targetRight;
+    return (float)diff / (float)MOTOR_MAX;
+}
+
+float Motors::getCommon() {
     int common = (targetLeft + targetRight) / 2;
-    return common;
+    return (float)common / (float)MOTOR_MAX;
 }
 
 // Write motor values to motor control pins
 void Motors::update() {
-    // LOG("Motors update");
     if(1 != timer.check()) return;
 
+    // Slew limiting
+    /*
     int now = millis();
     int deltaTime = now - lastUpdateMS;
     lastUpdateMS = now;
     float deltaMotor = slewRate * (float)deltaTime / 1000.0;
-
-    // Slew limiting
     if(targetLeft > (int)actualLeft) {
         actualLeft = min(targetLeft, actualLeft + deltaMotor);
     } else if(targetLeft < (int)actualLeft) {
@@ -85,6 +102,9 @@ void Motors::update() {
     } else if(targetRight < (int)actualRight) {
         actualRight = max(targetRight, actualRight - deltaMotor);
     }
+    */
+    actualLeft = targetLeft;
+    actualRight = targetRight;
 
     int mag_left = min(abs(actualLeft), MOTOR_MAX);
     int mag_right = min(abs(actualRight), MOTOR_MAX);
