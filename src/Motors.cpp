@@ -4,7 +4,7 @@ void Motors::init() {
     LogInfo("Motors init");
     pinMode(PIN_DIR_L, OUTPUT);
     pinMode(PIN_DIR_R, OUTPUT);
-    analogWriteResolution(12);
+    analogWriteResolution(MOTOR_OUTPUT_BITS);
     lastUpdateMS = millis();
 }
 

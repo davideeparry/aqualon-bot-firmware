@@ -1,11 +1,11 @@
 #ifndef MOTORS
 #define MOTORS 1
-#include "StateService.h"
 #include "Arduino.h"
+#include "Logging.h"
 #include <Metro.h>
 
 // #define MOTOR_MAX   60
-#define MOTOR_OUTPUT_BITS   (12)
+#define MOTOR_OUTPUT_BITS   (8)
 #define MOTOR_FULL_SCALE    (1 << MOTOR_OUTPUT_BITS)
 #define MOTOR_MAX           (MOTOR_FULL_SCALE * 0.25)
 #define MOTOR_MIN           (MOTOR_FULL_SCALE * 0.062)

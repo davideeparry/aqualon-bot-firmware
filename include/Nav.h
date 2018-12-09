@@ -5,6 +5,7 @@
 #include "Motors.h"
 #include "Logging.h"
 #include <assert.h>
+#include <jled.h>
 
 // Navigation
 // Some of these should just be defaults for changeable values stored in the nav object
@@ -21,6 +22,8 @@
 #define NAV_DISTANCE_ARRIVAL        2
 #define NAV_DISTANCE_THRESHOLD      5
 #define NAV_FORWARD_SPEED           0.6
+
+#define NAV_LED_PIN                 23
 
 class WaypointList {
     public:
@@ -54,23 +57,8 @@ class Nav {
                 navState(NAV_STATE_STARTUP), 
                 gps(&Gps::instance()), 
                 mpu(&Mpu::instance()),
-
-                // PID loop parameters
-                /*
-                angleToDiffP(7), 
-                angleToDiffD(-40), 
-                angleToCommP(-60), 
-                angleToCommD(0), 
-                distClamp(NAV_DISTANCE_THRESHOLD),       // Max proportional distance error
-                angleClamp(0.8),    // For commmon mode only
-                distToDiffP(0), 
-                distToDiffD(0), 
-                distToCommP(NAV_FORWARD_SPEED / NAV_DISTANCE_THRESHOLD),
-                distToCommD(0),
-                diffGain(1.0),
-                commGain(1.0),
-                */
-                targetWaypoint(-1)
+                targetWaypoint(-1),
+                statusLed(JLed(NAV_LED_PIN))
                 {};
 
         Metro timer;
@@ -95,6 +83,8 @@ class Nav {
         Point target;
         int targetWaypoint;
 
+        JLed statusLed;
+
     public:
         static Nav& instance() {
             static Nav INSTANCE;
@@ -114,7 +104,7 @@ class Nav {
         int setTargetNearest();
         int setTargetNext();
 
-        void setNavState(NavigationState state) { navState = state; };
+        void setNavState(NavigationState state);
         int getNavState() { return navState; };
 
         Vec3d getPosition() { return position; };

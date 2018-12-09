@@ -14,18 +14,40 @@ void Nav::init() {
         waypoints.add(49.256752,-123.062331);
         waypoints.add(49.256907,-123.062930);
         */
+        // Trout Lake short path
+        /*
+        waypoints.add(49.257192,-123.062945);
+        waypoints.add(49.257193,-123.062686);
+        waypoints.add(49.257062,-123.062804);
+        waypoints.add(49.257064,-123.063068);
+        */
+        // Trout Lake North to South
+        /*
+        waypoints.add(49.257185,-123.062932);
+        waypoints.add(49.256627,-123.063015);
+        waypoints.add(49.255988,-123.062730);
+        waypoints.add(49.255630,-123.062317);
+        waypoints.add(49.255049,-123.061638);
+        waypoints.add(49.254868,-123.061605);
+        waypoints.add(49.254665,-123.061807);
+        waypoints.add(49.254379,-123.061705);
+        */
         // AQ Pond
         waypoints.add(49.279003,-122.917036);
+        waypoints.add(49.279065,-122.916997);
         waypoints.add(49.279279,-122.916931);
         waypoints.add(49.279272,-122.916784);
-        waypoints.add(49.279126,-122.916831);
+        waypoints.add(49.279229,-122.916828);
+        waypoints.add(49.279146,-122.916821);
+        waypoints.add(49.279006,-122.916880);
     #else
     #endif
 
-    navState = NAV_STATE_STARTUP;
+    setNavState(NAV_STATE_STARTUP);
 }
 
 void Nav::update() {
+    statusLed.Update();
     if(1 != timer.check()) return;
 
     debugLog = debugTimer.check();
@@ -42,14 +64,14 @@ void Nav::update() {
             // Wait until we have first GPS reading
             if(gps->isNew()) {
                 LogInfo("Nav: got GPS, switching to discovery");
-                LogInfo("Lat: ", gps->getLat());
-                LogInfo("Lon: ", gps->getLon());
-                int forward = (MOTOR_MAX / 3) * 2;
+                LogInfo("Lat: %f", gps->getLat());
+                LogInfo("Lon: %f", gps->getLon());
+                float forward = 0.7;
                 Motors::instance().setLeft(forward);
                 Motors::instance().setRight(forward);
                 discoveryStartTime = millis();
                 gps->markOld();
-                navState = NAV_STATE_DISCOVERY;
+                setNavState(NAV_STATE_DISCOVERY);
             }
             break;
         }
@@ -66,6 +88,7 @@ void Nav::update() {
         {
             updateVectors(timeDeltaMS);
             updateErr();
+
             // Check if waypoint is reached
             if(errDist < NAV_DISTANCE_ARRIVAL)
             {
@@ -79,10 +102,10 @@ void Nav::update() {
             static const float distPtoCClampValue = 6; // Start slowing when this far from target
 
             static const float targetCommon = 0.7;
-            static const float targetDiff = 0.7;
+            static const float maxDiff = 0.7;
             static const float anglePtoCCoeff = targetCommon / anglePtoCClampValue;
             static const float distPtoCCoeff = targetCommon / distPtoCClampValue;
-            static const float anglePtoDCoeff = targetDiff / anglePtoDClampValue;
+            static const float anglePtoDCoeff = maxDiff / anglePtoDClampValue;
             static const float angleDtoDCoeff = -2.0;
 
             float angleP = errAngle;
@@ -96,12 +119,9 @@ void Nav::update() {
 
             // Differential term
             float motorDiff = (anglePtoDClamp * anglePtoDCoeff) - (angleD * angleDtoDCoeff);
-            // if(debugLog) LOGV("New motor diff:", motorDiff);
 
             // Common term
             float motorComm = (distPtoCClamp * distPtoCCoeff) - (anglePtoCCoeff * anglePtoCClamp);
-            // float motorComm = ((anglePClampC * angleToCommP) + (abs(angleD) * angleToCommD) + 
-            //                   (distP * distToCommP) + (distD * distToCommD)) * commGain;
 
             if(debugLog) LogDebug("ErrAP: %4.2f, ErrAD: %4.2f, ErrDP: %4.2f", angleP, angleD, distP)
             Motors::instance().setDiffCommon(motorDiff, motorComm);
@@ -121,7 +141,7 @@ void Nav::update() {
         }
         default:
             LogError("Navigation is in an unknown state. Halting");
-            navState = NAV_STATE_HALT;
+            setNavState(NAV_STATE_HALT);
             break;
     }
 }
@@ -138,11 +158,12 @@ void Nav::initVectors() {
     int index = setTarget(1);
     if(index >= 0) {
         LogInfo("Starting waypoint: %d", index);
-        navState = NAV_STATE_RUN;
+        setNavState(NAV_STATE_RUN);
     } else {
         LogError("Could not find starting waypoint. Halting");
-        navState = NAV_STATE_HALT;
+        setNavState(NAV_STATE_HALT);
     }
+    gps->markOld();
 }
 
 void Nav::initErr() {
@@ -260,6 +281,36 @@ int Nav::setTargetNext() {
         return targetWaypoint;
     }
     return -1;
+}
+
+void Nav::setNavState(NavigationState state) {
+    
+    navState = state;
+    switch (state)
+    {
+        case NAV_STATE_STARTUP:
+            statusLed.Blink(125,125).Forever();
+            break;
+        
+        case NAV_STATE_DISCOVERY:
+            statusLed.Blink(250,750).Forever();
+            break;
+    
+        case NAV_STATE_RUN:
+            statusLed.Blink(125,1875).Forever();
+            break;
+        
+        case NAV_STATE_HALT:
+            statusLed.Breathe(2000).Forever();
+            break;
+        
+        case NAV_STATE_MANUAL:
+            statusLed.Blink(500,500).Forever();
+            break;
+    
+        default:
+            break;
+    }
 }
 
 // Waypoints functions
