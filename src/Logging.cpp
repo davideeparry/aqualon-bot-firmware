@@ -2,7 +2,6 @@
 
 static char logTimeBuff[32];
 static char logStrBuff[256];
-static char logOutBuff[256];
 
 static char logLevelStrings[NUM_LOG_LEVELS][8] = {
     " NONE  ", " ERROR ", " INFO  ", " DEBUG "
@@ -17,7 +16,7 @@ static void loadTimeStr() {
     time_t timeNow = now();
     breakTime(timeNow, tm);
     sprintf(logTimeBuff, "%04u-%02u-%02u %02u:%02u:%02u", 
-            tm.Year, tm.Month, tm.Day, tm.Hour, tm.Minute, tm.Second);
+            tmYearToCalendar(tm.Year), tm.Month, tm.Day, tm.Hour, tm.Minute, tm.Second);
 }
 
 static void LogOut(logLevels level, const char *str) {
@@ -26,33 +25,27 @@ static void LogOut(logLevels level, const char *str) {
         Serial.print(logStrBuff); Serial.print("\n");
     }
     if(level <= logLevelDatabase) {
-        Database::instance().writeToDataLog(logOutBuff); Database::instance().writeToDataLog(logLevelStrings[level]);
-        Database::instance().writeToDataLog(str); Database::instance().writeToDataLog("\n");
+        Database::instance().writeToDataLog(String(logTimeBuff) + 
+                                    String(logLevelStrings[level]) + 
+                                    String(str) + String("\n"));
     }
-    // if(level >= logLevelComms) {
+    // if(level <= logLevelComms) {
     // }
 }
 
 void Log(logLevels level, const char* fmt, ...) {
     if(!(level <= logLevelDatabase || level <= logLevelComms || level <= logLevelSerial)) return;
-
     loadTimeStr();
-
     va_list args;
     va_start(args, fmt);
     vsprintf(logStrBuff, fmt, args);
     va_end(args);
-
-    // sprintf(logOutBuff, "%s %5s %s\n", logTimeBuff, logLevelStrings[level], logOutBuff);
     LogOut(level, logStrBuff);
 }
 
 void Log(logLevels level, const char* str) {
     if(!(level <= logLevelDatabase || level <= logLevelComms || level <= logLevelSerial)) return;
-
     loadTimeStr();
-
-    // sprintf(logOutBuff, "%s %5s %s\n", logTimeBuff, logLevelStrings[level], str);
     LogOut(level, str);
 }
 

@@ -2,13 +2,10 @@
 #define MPU_H
 #include "Arduino.h"
 #include "Wire.h"
-#if defined(SIMULATION)
-#include "MPU9250sim.h"
-#else
-#include "MPU9250.h"
-#endif
+#include "Simulator.h"
 #include "Communications.h"
 #include "Logging.h"
+#include <MPU9250.h>
 #include <Metro.h>
 
 #define MPU_DEFAULT_UPDATE_RATE     10

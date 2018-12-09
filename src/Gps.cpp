@@ -6,9 +6,11 @@ time_t gpsGetTime() {
 
 void Gps::init() {  // GPS TX/RX are plugged into gpsSerial
     LogInfo("Initializing GPS");
+    #if !defined(SIMULATION)
     gpsSerial.begin(9600);
     setSyncProvider(gpsGetTime);
     setSyncInterval(GPS_TIME_SYNC_RATE);
+    #endif
 };
 
 char gps_tmp_buff[128];
@@ -16,6 +18,15 @@ char gps_tmp_buff[128];
 void Gps::update() 
 {
     if(1 != timer.check()) return;
+
+    #if defined(SIMULATION)
+    static Simulator *sim = &Simulator::instance();
+    lat = sim->lat;
+    lon = sim->lon;
+    courseRadians = PI * sim->angle / 180.0;
+    speed = sim->speed;
+    newData = 1;
+    #else
 
     while(gpsSerial.available() > 0) gps.encode(gpsSerial.read());
 
@@ -37,6 +48,13 @@ void Gps::update()
         newData = 1;
     }
 
+    if(!timeInit && gps.date.isValid()) {
+        setTime(getTime());
+        timeInit = true;
+    }
+
+    #endif
+
     if(1 == debugTimer.check()) {
         LogDebug("GPS Lat: %f, Lon: %f, Speed: %f, Heading: %f", lat, lon, speed, courseRadians);
     }
@@ -46,13 +64,16 @@ void Gps::update()
 time_t Gps::getTime() {
     tmElements_t tm;
     if(gps.time.isUpdated() && gps.time.isValid()) {
-        tm.Year = gps.date.year();
+        tm.Year = CalendarYrToTm(gps.date.year());
         tm.Month = gps.date.month();
         tm.Day = gps.date.day();
         tm.Hour = gps.time.hour();
         tm.Minute = gps.time.minute();
         tm.Second = gps.time.second();
-        return makeTime(tm);
+        time_t t = makeTime(tm);
+        t += timeZoneOffset * SECS_PER_HOUR;
+        return t;
+    } else {
+        return 0;
     }
-    return 0;
 }

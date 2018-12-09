@@ -4,23 +4,25 @@
 #include <Arduino.h>
 #include <TimerOne.h>
 #include "TinyGPS++.h"
-#include "StateService.h"
 #include "Communications.h"
 #include "Logging.h"
 #include "Constants.h"
+#if defined(SIMULATION)
+#include "Simulator.h"
+#endif
 #include <Metro.h>
 #include <TimeLib.h>
 
+#if defined(SIMULATION)
+#define GPS_DEFAULT_UPDATE_RATE     1000
+#else
 #define GPS_DEFAULT_UPDATE_RATE     20   // 50 is bare minimum to keep up with serial buffer
+#endif
 #define GPS_DEBUG_LOG_RATE          1000
-#define GPS_TIME_SYNC_RATE          (60 * 60 * 24)  // In seconds, for setSyncInterval
+#define GPS_TIME_SYNC_RATE          (60 * 60)  // In seconds, for setSyncInterval
 #define GPS_TIMEZONE_OFFSET_PACIFIC (-8)
 
-#if defined(SIMULATION)
-#define gpsSerial Serial1
-#else
 #define gpsSerial Serial4
-#endif
 
 class Gps 
 {
@@ -33,6 +35,7 @@ class Gps
         unsigned long age;
         Gps() : timer(Metro(GPS_DEFAULT_UPDATE_RATE)),
                 debugTimer(Metro(GPS_DEBUG_LOG_RATE)),
+                timeInit(false),
                 timeZoneOffset(GPS_TIMEZONE_OFFSET_PACIFIC)
                 {};
 
@@ -43,6 +46,7 @@ class Gps
         bool newData;
 
         // Time
+        bool timeInit;
         time_t getTime();
         int timeZoneOffset;
 
