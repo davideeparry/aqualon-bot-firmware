@@ -14,7 +14,7 @@
 #include <TimeLib.h>
 
 #if defined(SIMULATION)
-#define GPS_DEFAULT_UPDATE_RATE     1000
+#define GPS_DEFAULT_UPDATE_RATE     1000 // Normal NMEA update rate
 #else
 #define GPS_DEFAULT_UPDATE_RATE     20   // 50 is bare minimum to keep up with serial buffer
 #endif

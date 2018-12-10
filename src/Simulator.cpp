@@ -3,7 +3,7 @@
 
 void Simulator::init() {
     setSyncProvider(simGetTime);
-    setSyncInterval(60*60*24);
+    setSyncInterval(60*60);
     simSerial.begin(9600);
 }
 
@@ -11,7 +11,6 @@ void Simulator::update() {
     if(1 != timer.check()) return;
 
     bool debug = debugTimer.check();
-    if(debug) LogInfo("Updating simulator input");
     // Process incoming state
     if(simSerial.available()) {
         StaticJsonBuffer<1024> jsonBuff;
@@ -36,14 +35,14 @@ void Simulator::update() {
         // if (debug) { root.prettyPrintTo(Serial); Serial.print("\n"); }
     }
     // Send firmware state to simulator
-    if(debug) LogDebug("Sending state");
-    StaticJsonBuffer<256> outputBuff;
+    StaticJsonBuffer<1024> outputBuff;
     JsonObject &output = outputBuff.createObject();
     output["ml"] = Motors::instance().getLeft();
     output["mr"] = Motors::instance().getRight();
     Vec3d pos = Nav::instance().getPosition();
-    output["x"] = pos.getX();
-    output["y"] = pos.getY();
+    Point where = Point(pos);
+    output["lat"] = where.getLat();
+    output["lon"] = where.getLon();
     output["z"] = pos.getZ();
     // if(debug) {
     //     String jsonOut;
@@ -58,7 +57,6 @@ time_t simGetTime() {
     tmElements_t tm;
     Simulator *sim = &Simulator::instance();
     if(sim->year != 0) {
-        LogDebug("Got new time from Simulator");
         tm.Year = sim->year;
         tm.Month = sim->month;
         tm.Day = sim->day;
@@ -67,7 +65,6 @@ time_t simGetTime() {
         tm.Second = sim->sec;
         return makeTime(tm);
     } else {
-        LogDebug("Sim time sync failed");
         return 0;
     }
 }

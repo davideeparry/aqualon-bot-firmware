@@ -22,13 +22,13 @@ Vec3d operator-(Vec3d a, Vec3d b) {
 Vec3d operator*(Vec3d v, float s) {
     return Vec3d(v.x * s, 
                  v.y * s, 
-                 fmod(v.z * s, 2*PI));
+                 v.z * s);
 }
 
 Vec3d operator/(Vec3d v, float s) {
     return Vec3d(v.x / s, 
                  v.y / s, 
-                 fmod(v.z / s, 2*PI));
+                 v.z / s);
 }
 
 Vec3d rotate(Vec3d v, float angle) {

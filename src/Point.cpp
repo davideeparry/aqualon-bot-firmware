@@ -21,9 +21,8 @@ Point::Point(double latitude, double longitude) {
 }
 
 Point::Point(Vec3d vec) {
-    if (!originSet) setOrigin(lat, lon);
-    lat = vec.getX() / EQUATORIAL_SCALE;
-    lon = vec.getY() / (lonScale * EQUATORIAL_SCALE);
+    lat = originLat + (vec.getX() / EQUATORIAL_SCALE);
+    lon = originLon + (vec.getY() / (lonScale * EQUATORIAL_SCALE));
     valid = true;
 }
 
@@ -66,6 +65,21 @@ float Point::getAngle() {
     return angle;
 }
 
+float getDist(Point a, Point b) {
+    float x = a.getX() - b.getX();
+    float y = a.getY() - b.getY();
+    return sqrt(pow(x, 2) + pow(y, 2));
+}
+
+float getAngle(Point a, Point b) {
+    float x = a.getX() - b.getX();
+    float y = a.getY() - b.getY();
+    if(x == 0) return 0.0;
+    // double angle = fmod(atan2(y,x) + 2*PI, 2*PI);
+    double angle = atan2(y,x);
+    return angle;
+}
+/*
 Point operator+(Point a, Point b)
 {
     return Point(a.getLat() + b.getLat(), a.getLon() + b.getLon());
@@ -75,3 +89,4 @@ Point operator-(Point a, Point b)
 {
     return Point(a.getLat() - b.getLat(), a.getLon() - b.getLon());
 }
+*/

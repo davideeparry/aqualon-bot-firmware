@@ -24,8 +24,10 @@ class Point {
         float getDist();
         float getAngle();
         Vec3d getVec3d(float angle);
-        friend Point operator+(Point a, Point b);
-        friend Point operator-(Point a, Point b);
+        // friend Point operator+(Point a, Point b);
+        // friend Point operator-(Point a, Point b);
+        friend float getDist(Point a, Point b);
+        friend float getAngle(Point a, Point b);
         operator bool() const { return valid; };
     private:
         static double originLat;

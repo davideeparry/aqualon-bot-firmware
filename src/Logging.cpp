@@ -25,7 +25,7 @@ static void LogOut(logLevels level, const char *str) {
         Serial.print(logStrBuff); Serial.print("\n");
     }
     if(level <= logLevelDatabase) {
-        Database::instance().writeToDataLog(String(logTimeBuff) + 
+        Database::instance().writeToSystemLog(String(logTimeBuff) + 
                                     String(logLevelStrings[level]) + 
                                     String(str) + String("\n"));
     }

@@ -15,15 +15,14 @@ void debugLog();
 
 // CONTAINS ALL THE SUBSYSTEMS AS GLOBAL CLASSES
 void setup() {
-    LogInfo("In setup()");
-    Serial.begin(115200);
-    Wire.begin();
-    Wire.setClock(400000); 
-    delay(3000);
-    LogInfo("Starting initialization");
     #if !defined(SIMULATION)
     Database::instance().init();
     #endif
+    Serial.begin(115200);
+    Wire.begin();
+    Wire.setClock(400000); 
+    delay(1000);
+    LogInfo("Starting initialization");
     // Communications::instance().init(Serial);
     // this is a service design pattern
     Mpu::instance().init();
@@ -35,7 +34,7 @@ void setup() {
     #if !defined(SIMULATION)
     setLogLevelDatabase(INFO);
     #else
-    setLogLevelDatabase(NONE);
+    setLogLevelDatabase(INFO);
     Simulator::instance().init();
     #endif
     setLogLevelSerial(DEBUG);
@@ -82,6 +81,10 @@ void debugUpdate() {
         case 'M':
             // Set nav to halt
             Nav::instance().setNavState(NAV_STATE_MANUAL);
+            break;
+        
+        case 'p':
+            Nav::instance().setNavState(NAV_STATE_STAY);
             break;
         
         // Manual motor control commands

@@ -26,6 +26,13 @@ void Gps::update()
     courseRadians = PI * sim->angle / 180.0;
     speed = sim->speed;
     newData = 1;
+    if(!timeInit) {
+        time_t t = simGetTime();
+        if(0 != t) {
+            setTime(t);
+            timeInit = true;
+        }
+    }
     #else
 
     while(gpsSerial.available() > 0) gps.encode(gpsSerial.read());

@@ -7,7 +7,7 @@
 // #define MOTOR_MAX   60
 #define MOTOR_OUTPUT_BITS   (8)
 #define MOTOR_FULL_SCALE    (1 << MOTOR_OUTPUT_BITS)
-#define MOTOR_MAX           (MOTOR_FULL_SCALE * 0.25)
+#define MOTOR_MAX           (MOTOR_FULL_SCALE * 0.3)
 #define MOTOR_MIN           (MOTOR_FULL_SCALE * 0.062)
 #if defined(SIMULATION)  // Teensy 3.2 pinout is different
 #define PIN_SPEED_L 3
