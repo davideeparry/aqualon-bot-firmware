@@ -32,16 +32,19 @@ int Nav::start() {
             return 0;
 
         case NAV_STATE_STAY:
+        {
             int i = setTargetNearest();
             if(-1 == i) {
                 return 1;
             } else {
                 setNavState(NAV_STATE_RUN);
             }
-    
+            break;
+        }
         default:
             break;
     }
+    return 0;
 }
 
 int Nav::stop() {
@@ -69,9 +72,6 @@ void Nav::update() {
                 LogInfo("Nav: got GPS, switching to discovery");
                 LogInfo("Lat: %f", gps->getLat());
                 LogInfo("Lon: %f", gps->getLon());
-                float forward = 1.0;
-                Motors::instance().setDiffCommon(0, forward);
-                discoveryStartTime = millis();
                 gps->markOld();
                 setNavState(NAV_STATE_WAIT);
             }
@@ -362,8 +362,13 @@ void Nav::setNavState(NavigationState state) {
             break;
         
         case NAV_STATE_DISCOVERY:
+        {
             statusLed.Blink(250,750).Forever();
+            float forward = 1.0;
+            Motors::instance().setDiffCommon(0, forward);
+            discoveryStartTime = millis();
             break;
+        }
     
         case NAV_STATE_RUN:
             statusLed.Blink(125,1875).Forever();
@@ -419,12 +424,17 @@ int WaypointList::add(Point wp) {
         LogInfo("New waypoint");
         LogInfo("Lat: %f", wp.getLat());
         LogInfo("Lon: %f", wp.getLon());
+        newPoints = true;
         return size - 1;
     } else {
         LogError("Max waypoints filled");
         return -1;
     }
 }
+
+bool WaypointList::isNew() { return newPoints; }
+
+void WaypointList::markOld() { newPoints = false; }
 
 int WaypointList::remove(size_t index) {
     if(size <= index) return -1;

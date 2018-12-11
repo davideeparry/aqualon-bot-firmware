@@ -18,10 +18,12 @@ int Motors::scaleMotorInput(float in) {
 }
 
 void Motors::setLeft(float l) { 
+    // LogDebug("Setting left motor: %f", l)
     targetLeft = scaleMotorInput(l);
 }
 
 void Motors::setRight(float r) {
+    // LogDebug("Setting right motor: %f", r)
     targetRight = scaleMotorInput(r);
 }
 

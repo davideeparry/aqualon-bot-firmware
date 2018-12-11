@@ -68,7 +68,8 @@ void debugUpdate() {
         case 'r':
         case 'R':
             // Reset nav state to startup
-            Nav::instance().setNavState(NAV_STATE_STARTUP);
+            // Nav::instance().setNavState(NAV_STATE_STARTUP);
+            Nav::instance().start();
             break;
 
         case 'h':

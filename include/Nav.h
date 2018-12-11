@@ -41,10 +41,13 @@ class WaypointList {
         int getNearest(Point target);
         size_t length();
         void print();
+        void markOld();
+        bool isNew();
 
     private:
         Point waypoints[MAX_WAYPOINTS];
         size_t size;
+        bool newPoints;
 };
 
 enum NavigationState

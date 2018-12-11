@@ -18,9 +18,10 @@
 
 class Simulator {
     private:
-        Simulator() : timer(Metro(20)), debugTimer(Metro(1000)) {};
+        Simulator() : timer(Metro(30)), debugTimer(Metro(1000)), wpTimer(Metro(1000)) {};
         Metro timer;
         Metro debugTimer;
+        Metro wpTimer;
 
     public:
         void init();
