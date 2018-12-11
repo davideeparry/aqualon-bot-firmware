@@ -11,9 +11,9 @@ void Motors::init() {
 int Motors::scaleMotorInput(float in) {
     int sign = in < 0 ? -1 : 1;
     float ain = min(1.0, abs(in)) * (float)MOTOR_MAX;
-    if(ain < MOTOR_MIN) {
-        ain = ain < (MOTOR_MIN / 2.0) ? 0.0 : (float)MOTOR_MIN;
-    }
+    // if(ain < MOTOR_MIN) {
+    //     ain = ain < (MOTOR_MIN / 4.0) ? 0.0 : (float)MOTOR_MIN;
+    // }
     return (int)ain * sign;
 }
 
@@ -54,6 +54,11 @@ void Motors::setDiffCommon(float diff, float common) {
     }
     setLeft(new_left);
     setRight(new_right);
+}
+
+void Motors::setOverride(int left, int right) {
+    targetLeft = left;
+    targetRight = right;
 }
 
 float Motors::getLeft() {

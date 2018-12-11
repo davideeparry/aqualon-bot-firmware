@@ -12,9 +12,9 @@
 // Some of these should just be defaults for changeable values stored in the nav object
 #define MAX_WAYPOINTS       128
 #define WAYPOINT_MIN_DIST   3.0
-#define DISCOVERY_TIME_MS   10000
-#define GPS_MIN_SPEED       0.20     // Minimum speed to accept gps heading data
-#define GPS_MAX_GYRO        0.05    // Max rotational velocity to accept gps heading data
+#define DISCOVERY_TIME_MS   20000
+#define GPS_MIN_SPEED       0.25     // Minimum speed to accept gps heading data
+#define GPS_MAX_GYRO        0.1    // Max rotational velocity to accept gps heading data
 #define GPS_POS_WEIGHT      0.5
 #define GPS_COURSE_WEIGHT   0.4
 
@@ -22,8 +22,7 @@
 #define NAV_DEBUG_RATE              1000
 
 #define NAV_DISTANCE_ARRIVAL        2
-#define NAV_DISTANCE_THRESHOLD      5
-#define NAV_FORWARD_SPEED           0.6
+#define NAV_STAY_RADIUS             3.0
 
 #define NAV_LED_PIN                 23
 #define NAV_PERSISTENT_FILE_NAME    "navstate.db"
@@ -51,10 +50,10 @@ class WaypointList {
 enum NavigationState
 {
     NAV_STATE_STARTUP = 0,
+    NAV_STATE_WAIT,
     NAV_STATE_DISCOVERY,
     NAV_STATE_RUN,
     NAV_STATE_MANUAL,
-    NAV_STATE_HALT,
     NAV_STATE_STAY
 };
 
@@ -65,6 +64,7 @@ class Nav {
                 navState(NAV_STATE_STARTUP), 
                 gps(&Gps::instance()), 
                 mpu(&Mpu::instance()),
+                lastGpsTime(-1),
                 targetWaypoint(-1),
                 statusLed(JLed(NAV_LED_PIN))
                 {};
@@ -80,6 +80,7 @@ class Nav {
         Mpu* mpu;
 
         int lastUpdateTime;
+        int lastGpsTime;
         Vec3d position;
         Vec3d velocity;
         Vec3d acceleration;
@@ -108,13 +109,19 @@ class Nav {
         void initErr();
         void updateErr(Point target);
 
-        Point getTarget();
-        void setTarget(Point wp);
+        // Return the current target point
+        Point getTarget();          
+        // Return a point 3 meters to the right (for circling)
+        Point getStayTarget();      
+        // Return a point just ahead of current position on a circle around the target
+        Point getCircleTarget();
+
+        int setTarget(Point wp);
         int setTarget(unsigned index);
+        int setTarget(double lat, double lon);
         int setTargetNearest();
         int setTargetNext();
         void clearWaypoints();
-        void makeStayList();
 
         void setNavState(NavigationState state);
         int getNavState() { return navState; };
@@ -122,6 +129,7 @@ class Nav {
         Vec3d getPosition() { return position; };
         Vec3d getVelocity() { return velocity; };
         Vec3d getAcceleration() { return acceleration; };
+        Point getPositionGeo() { return Point(position); };
         float getErrAngle() { return errAngle; };
         float getErrDist()  { return errDist; };
 
@@ -129,7 +137,10 @@ class Nav {
         int restoreState();
 
         WaypointList waypoints;
-        WaypointList staylist;
+
+        // User functions
+        int start();
+        int stop();
 };
 
 #endif // NAV_H

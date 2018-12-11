@@ -74,12 +74,13 @@ void debugUpdate() {
         case 'h':
         case 'H':
             // Set nav to halt
-            Nav::instance().setNavState(NAV_STATE_HALT);
+            Nav::instance().setNavState(NAV_STATE_WAIT);
             break;
 
         case 'm':
         case 'M':
             // Set nav to halt
+            Motors::instance().setOverride(0,0);
             Nav::instance().setNavState(NAV_STATE_MANUAL);
             break;
         
@@ -89,18 +90,23 @@ void debugUpdate() {
         
         // Manual motor control commands
         const static float increment = 0.25;
+        const static int overrideInc = 10;
         case 'w':
         {
-            float motorComm = Motors::instance().getCommon();
-            Motors::instance().setCommon(motorComm + increment);
-            LogDebug("Increasing motor from %f to %f", motorComm, motorComm + increment);
+            int newValue = Motors::instance().getCommon() * MOTOR_MAX + overrideInc;
+            Motors::instance().setOverride(newValue, newValue);
+            // float motorComm = Motors::instance().getCommon();
+            // Motors::instance().setCommon(motorComm + increment);
+            // LogDebug("Increasing motor from %f to %f", motorComm, motorComm + increment);
             break;
         }
 
         case 's':
         {
-            float motorComm = Motors::instance().getCommon();
-            Motors::instance().setCommon(motorComm - increment);
+            int newValue = Motors::instance().getCommon() * MOTOR_MAX - overrideInc;
+            Motors::instance().setOverride(newValue, newValue);
+            // float motorComm = Motors::instance().getCommon();
+            // Motors::instance().setCommon(motorComm - increment);
             break;
         }
 

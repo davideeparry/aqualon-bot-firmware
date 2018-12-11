@@ -1,4 +1,5 @@
 #include "Nav.h"
+#include "Paths.h"
 #include <Metro.h>
 
 void Nav::init() {
@@ -6,56 +7,46 @@ void Nav::init() {
     LogInfo("NAV Init");
     // #if defined(SIMULATION) || defined(LABBUILD)
     #if 1
-        // Load simulator coordinates
-        // Trout Lake North
-        /*
-        waypoints.add(49.257182,-123.062937);
-        waypoints.add(49.257042,-123.062331);
-        waypoints.add(49.256752,-123.062331);
-        waypoints.add(49.256907,-123.062930);
-        */
-        // Trout Lake short path
-        /*
-        waypoints.add(49.257192,-123.062945);
-        waypoints.add(49.257193,-123.062686);
-        waypoints.add(49.257062,-123.062804);
-        waypoints.add(49.257064,-123.063068);
-        */
-        // Trout Lake North to South
-        /*
-        waypoints.add(49.257185,-123.062932);
-        waypoints.add(49.256627,-123.063015);
-        waypoints.add(49.255988,-123.062730);
-        waypoints.add(49.255630,-123.062317);
-        waypoints.add(49.255049,-123.061638);
-        waypoints.add(49.254868,-123.061605);
-        waypoints.add(49.254665,-123.061807);
-        waypoints.add(49.254379,-123.061705);
-        */
-        // AQ Pond
-        waypoints.add(49.279297,-122.916940);
-        waypoints.add(49.279272,-122.916784);
-        waypoints.add(49.279229,-122.916828);
-        waypoints.add(49.279146,-122.916821);
-        waypoints.add(49.279006,-122.916880);
-        waypoints.add(49.279003,-122.917036);
-        waypoints.add(49.279065,-122.916997);
-
-        // AQ Pond counter-clockwise
-        /*
-        waypoints.add(49.279006, -122.916880);
-        waypoints.add(49.279146, -122.916821);
-        waypoints.add(49.279229, -122.916828);
-        waypoints.add(49.279272, -122.916784);
-        waypoints.add(49.279297, -122.916940);
-        waypoints.add(49.279065, -122.916997);
-        waypoints.add(49.279003, -122.917036);
-        */
-
-#else
+    loadPathsAQ();
     #endif
 
     setNavState(NAV_STATE_STARTUP);
+}
+
+// User functions
+int Nav::start() {
+    
+    switch (navState)
+    {
+        case NAV_STATE_STARTUP:
+            return 1;
+        
+        case NAV_STATE_WAIT:
+            setNavState(NAV_STATE_DISCOVERY);
+            return 0;
+
+        case NAV_STATE_DISCOVERY:
+            return 0;
+
+        case NAV_STATE_RUN:
+            return 0;
+
+        case NAV_STATE_STAY:
+            int i = setTargetNearest();
+            if(-1 == i) {
+                return 1;
+            } else {
+                setNavState(NAV_STATE_RUN);
+            }
+    
+        default:
+            break;
+    }
+}
+
+int Nav::stop() {
+    setNavState(NAV_STATE_WAIT);
+    return 0;
 }
 
 void Nav::update() {
@@ -82,8 +73,18 @@ void Nav::update() {
                 Motors::instance().setDiffCommon(0, forward);
                 discoveryStartTime = millis();
                 gps->markOld();
-                setNavState(NAV_STATE_DISCOVERY);
+                setNavState(NAV_STATE_WAIT);
             }
+            break;
+        }
+        case NAV_STATE_WAIT:
+        {
+            // Wait for start command
+            if(lastGpsTime > -1) {
+                updateVectors(timeDeltaMS);
+            }
+            Motors::instance().setLeft(0);
+            Motors::instance().setRight(0);
             break;
         }
         case NAV_STATE_DISCOVERY:
@@ -96,6 +97,7 @@ void Nav::update() {
         }
         case NAV_STATE_RUN:
         {
+            // Run follows the current path. If no waypoints are loaded, 
             updateVectors(timeDeltaMS);
             updateErr(getTarget());
             updateDrive(timeDeltaMS);
@@ -103,7 +105,10 @@ void Nav::update() {
             // Check if waypoint is reached
             if(errDist < NAV_DISTANCE_ARRIVAL)
             {
-                setTargetNext();
+                int i = setTargetNext();
+                if(i < 0 || waypoints.length() == 1) {
+                    setNavState(NAV_STATE_STAY);
+                }
             }
             break;
         }
@@ -112,27 +117,17 @@ void Nav::update() {
             updateVectors(timeDeltaMS);
             break;
         }
-        case NAV_STATE_HALT:
-        {
-            updateVectors(timeDeltaMS);
-            Motors::instance().setLeft(0);
-            Motors::instance().setRight(0);
-            break;
-        }
         case NAV_STATE_STAY:
         {
+            // Stay will circle the currently loaded target point
             updateVectors(timeDeltaMS);
-            updateErr(staylist.get(targetStaypoint));
+            updateErr(getCircleTarget());
             updateDrive(timeDeltaMS);
-            if(errDist < NAV_DISTANCE_ARRIVAL)
-            {
-                targetStaypoint = (targetStaypoint + 1) % 4;
-            }
             break;
         }
         default:
             LogError("Navigation is in an unknown state. Halting");
-            setNavState(NAV_STATE_HALT);
+            setNavState(NAV_STATE_WAIT);
             break;
     }
 }
@@ -153,7 +148,8 @@ void Nav::initVectors() {
         setNavState(NAV_STATE_RUN);
     } else {
         LogError("Could not find starting waypoint. Halting");
-        setNavState(NAV_STATE_HALT);
+        setTarget(getStayTarget());
+        setNavState(NAV_STATE_STAY);
     }
     gps->markOld();
 }
@@ -240,10 +236,10 @@ void Nav::updateErr(Point target) {
 void Nav::updateDrive(int timeDeltaMS) {
     // Calculate new motor commands
     static const float anglePtoDClampValue = 2.0;
-    static const float anglePtoCClampValue = 0.8;
+    static const float anglePtoCClampValue = 1.2;
     static const float distPtoCClampValue = 6; // Start slowing when this far from target
 
-    static const float targetCommon = 0.9;
+    static const float targetCommon = 0.8;
     static const float maxDiff = 0.7;
     static const float anglePtoCCoeff = targetCommon / anglePtoCClampValue;
     static const float distPtoCCoeff = targetCommon / distPtoCClampValue;
@@ -280,9 +276,35 @@ Point Nav::getTarget() {
     }
 }
 
-void Nav::setTarget(Point p) {
+// Get a new target to the right of current position to begin circling
+Point Nav::getStayTarget() {
+    float z = position.getZ();
+    float x = position.getX() + NAV_STAY_RADIUS * cos(z + PI/2.0);
+    float y = position.getY() + NAV_STAY_RADIUS * sin(z + PI/2.0);
+    LogDebug("Generating stay target: %4.2f, %4.2f", x, y);
+    return Point(Vec3d(x, y, 0));
+}
+
+// Get a point just ahead of our position in a circle around the target
+Point Nav::getCircleTarget() {
+    static Metro tm(500);
+    Point target = getTarget();
+    Point pos = Point(position);
+    float angleFromTarget = getAngle(pos, target);
+    float angleAhead = angleFromTarget + 1.0;
+    Point circleTarget = Point(Vec3d(target.getX() + NAV_STAY_RADIUS * cos(angleAhead), 
+                               target.getY() + NAV_STAY_RADIUS * sin(angleAhead), 0));
+    if(1 == tm.check()) {
+        LogDebug("Target (%4.2f,%4.2f), CircleTarget: (%4.2f,%4.2f)", target.getX(), target.getY(), 
+                  circleTarget.getX(), circleTarget.getY());
+    }
+    return circleTarget;
+}
+
+int Nav::setTarget(Point p) {
     target = p;
     targetWaypoint = -1;
+    return 0;
 }
 
 int Nav::setTarget(unsigned index) {
@@ -295,7 +317,14 @@ int Nav::setTarget(unsigned index) {
     }
 }
 
+int Nav::setTarget(double lat, double lon) {
+    return setTarget(Point(lat, lon));
+}
+
 void Nav::clearWaypoints() {
+    if(-1 != targetWaypoint) {
+        setTarget(waypoints.get(targetWaypoint));
+    }
     waypoints.clear();
     setNavState(NAV_STATE_STAY);
 }
@@ -310,7 +339,8 @@ int Nav::setTargetNearest() {
 }
 
 int Nav::setTargetNext() {
-    if(waypoints.length() > 0) {
+    // Check if we are on waypoints now
+    if(targetWaypoint >= 0 && waypoints.length() > 0) {
         targetWaypoint = (targetWaypoint + 1) % waypoints.length();
         LogInfo("Setting waypoint %d", targetWaypoint);
         return targetWaypoint;
@@ -326,6 +356,10 @@ void Nav::setNavState(NavigationState state) {
         case NAV_STATE_STARTUP:
             statusLed.Blink(125,125).Forever();
             break;
+
+        case NAV_STATE_WAIT:
+            statusLed.Blink(125, 625);
+            break;
         
         case NAV_STATE_DISCOVERY:
             statusLed.Blink(250,750).Forever();
@@ -333,11 +367,6 @@ void Nav::setNavState(NavigationState state) {
     
         case NAV_STATE_RUN:
             statusLed.Blink(125,1875).Forever();
-            setTargetNearest();
-            break;
-        
-        case NAV_STATE_HALT:
-            statusLed.Breathe(2000).Forever();
             break;
         
         case NAV_STATE_MANUAL:
@@ -346,26 +375,11 @@ void Nav::setNavState(NavigationState state) {
 
         case NAV_STATE_STAY:
             statusLed.Blink(125,1875).Forever();
-            staylist.clear();
-            makeStayList();
-            targetStaypoint = 0;
             break;
     
         default:
             break;
     }
-}
-
-void Nav::makeStayList() {
-    float dist = WAYPOINT_MIN_DIST / 1.8;
-    Vec3d a = position + Vec3d(dist, dist, 0);
-    Vec3d b = position + Vec3d(dist, -dist, 0);
-    Vec3d c = position + Vec3d(-dist, dist, 0);
-    Vec3d d = position + Vec3d(-dist, -dist, 0);
-    staylist.add(Point(a));
-    staylist.add(Point(b));
-    staylist.add(Point(c));
-    staylist.add(Point(d));
 }
 
 // Save current state, including waypoints, to persistent disk file
@@ -385,6 +399,7 @@ int Nav::saveState() {
 int Nav::restoreState() {
     return 0;
 }
+
 // Waypoints functions
 
 int WaypointList::add(double lat, double lon) {
@@ -473,7 +488,7 @@ size_t WaypointList::length() {
 
 void WaypointList::print() {
     char printbuff[128];
-    for(size_t i=0; i<10; i++) {
+    for(size_t i=0; i<size; i++) {
         Point wp = waypoints[i];
         LogInfo("WP %d, x:%4.2f, y:%4.2f, lat:%8.6f, lon:%8.6f", i, wp.getX(), wp.getY(), wp.getLat(), wp.getLon());
     }

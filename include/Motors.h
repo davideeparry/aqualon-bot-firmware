@@ -60,6 +60,7 @@ class Motors {
         void setDiff(float diff);
         void setCommon(float common);
         void setDiffCommon(float diff, float common);
+        void setOverride(int left, int right);
 
         float getLeft();
         float getRight();
