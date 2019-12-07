@@ -10,11 +10,11 @@
 
  // CONTAINS ALL THE SUBSYSTEMS AS GLOBAL CLASSES
 void setup() {
-   Serial.begin(115200);
+   Serial2.begin(9600);
    Wire.begin();
    Wire.setClock(400000); 
 
-   Communications::instance().init(Serial);
+   Communications::instance().init(Serial2);
 // this is a service design pattern
    //Mpu::instance().init();
    //Gps::instance().init();
@@ -26,7 +26,7 @@ void setup() {
 int counter = 0;
 bool flag = false;
 void loop() {
-    if (Serial.available()) {
+    if (Serial2.available()) {
        flag = true;
     }
     //Motors::instance().loop();

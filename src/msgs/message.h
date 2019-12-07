@@ -6,7 +6,7 @@
 class Message
 {
     String stringMsg;
-    StaticJsonBuffer<200> jsonBuffer;
+    StaticJsonBuffer<1000> jsonBuffer;
     public:
         // Also if we want we can easily use ENUM types for the key instead of a String
     Message();

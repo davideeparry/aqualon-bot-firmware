@@ -3,6 +3,7 @@
 #include "SD.h"
 #include "SPI.h"
 #include "../state/stateService.h"
+#include "../msgs/message.h"
 
 #include "Arduino.h"
 
@@ -12,6 +13,7 @@ class Database
     const int chipSelect = BUILTIN_SDCARD;
     char dataLogId[9] = "data.log";
     char systemLogId[11] = "system.log";
+    bool transferInProgress = false;
     File dataLog;
     File systemLog;
     Database(){
@@ -28,7 +30,7 @@ class Database
     void writeToSystemLog(String messageBuffer);
     void writeToDataLog(String messageBuffer);
     String dumpSystemLogs();
-    String dumpDataLogs();
+    String dumpDataLogs(int chunkSize);
     void clearSystemLog();
     void clearDatalog();
 };

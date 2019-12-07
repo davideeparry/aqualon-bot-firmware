@@ -13,7 +13,7 @@ class Communications
     char recBuffer[recBufferSize];
     int index;
     //HardwareSerial4 serialPort; // This is for when the radio is here
-    usb_serial_class *serialPort;
+    HardwareSerial2 *serialPort;
     const int interruptPin = 12;
     ErrorStrings errorStrings;
     Communications(){};
@@ -25,7 +25,7 @@ class Communications
         return INSTANCE;
     }
     int getMaxSerialMsgSize();
-    void init(usb_serial_class &serial);
+    void init(HardwareSerial2 &serial);
     void isr();
     void sendError(String errorMsg);
     void sendMessage(Message msg);

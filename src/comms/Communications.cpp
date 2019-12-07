@@ -2,7 +2,7 @@
 #include "Communications.h"
 #include "CommunicationsISR.h"
 
-void Communications::init(usb_serial_class &serial)
+void Communications::init(HardwareSerial2 &serial)
 {
     index = 0;
     serialPort = &serial;

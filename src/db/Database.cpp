@@ -25,15 +25,23 @@ void Database::writeToSystemLog(String msg)
     systemLog.close();
 };
 
-String Database::dumpDataLogs()
+String Database::dumpDataLogs(int chunkSize)
 { 
     String dataDump = "";
-    dataLog = SD.open(dataLogId); // callback
+    if (transferInProgress == false) {
+        dataLog = SD.open(dataLogId);
+    }
+     // callback
     while (dataLog.available())
     {
         char tmp = dataLog.read();
         dataDump.concat(tmp);
+        if (dataDump.length() >= chunkSize) {
+            transferInProgress = true;
+            return dataDump;
+        }
     }
+    transferInProgress = false;
     dataLog.close();
     return dataDump;
     // This needs a limit so that it doesn't dump too much memory and will partition it. 
@@ -42,12 +50,17 @@ String Database::dumpDataLogs()
 String Database::dumpSystemLogs()
 { // WILL WANT TO MAKE THIS ONLY DUMP AS MUCH AS MEMORY WILL ALLOW, AND IT SHOULD BE CALLED MULTIPLE TIMES BY THE CALLER
     String systemDump;
-    systemLog = SD.open(systemLogId, FILE_WRITE);
+    systemLog = SD.open(dataLogId);
+
     while (systemLog.available())
     {
         systemDump.append(systemLog.read());
+       /* if (systemDump.length() >= 10) {
+            systemLog.close();
+            return systemDump;
+        } */
     }
-    dataLog.close();
+    systemLog.close();
     return systemDump;
 };
 
