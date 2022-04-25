@@ -1,10 +1,10 @@
 #ifndef COMM_ISR
-#define COMM_ISR
+#define COMM_ISR 1
 
-#include "../state/globalObjs.h"
-
-void communicationsISRWrapper() {
-    communications.isr();
+#include "Communications.h"
+void communicationsISRWrapper()
+{
+    Communications::instance().isr();
 };
 
 #endif

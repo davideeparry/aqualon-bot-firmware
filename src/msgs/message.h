@@ -1,20 +1,23 @@
 #ifndef MESSAGES
-#define MESSAGES
-#include <string>
+#define MESSAGES 1
+#include "Arduino.h"
+#include "ArduinoJson.h"
 
-class message
+class Message
 {
+    String stringMsg;
+    StaticJsonBuffer<1000> jsonBuffer;
     public:
         // Also if we want we can easily use ENUM types for the key instead of a String
-        message(void); // empty msg
-        message(char msgBuffer[]); // generating a msg from a fresh buffer
-        void makeError(String error);
-        bool addKeyValuePair(String key, String pair); // Can overload this function for various types
-        int getIntFromKey(String key); 
-        double getDoubleFromKey(String key);
-        String getStringFromKey(String key);
-        message getMsgFromKey(String key); // So we can store recursive structures
-        char* getSerialBuffer(); // Turn back into a byte buffer for transmission     
+    Message();
+    Message(String msg); // generating a msg from a fresh buffer
+    Message(const Message &msg);
+    void makeError(String error);
+    bool addKeyValuePair(String key, String pair); // Can overload this function for various types
+    int getIntFromKey(String key); 
+    double getDoubleFromKey(String key);
+    String getStringFromKey(String key);
+    String getJSONString(); // Turn back into a byte buffer for transmission     
 };
 
 #endif

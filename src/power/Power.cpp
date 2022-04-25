@@ -1,6 +1,7 @@
 
 #include "Power.h"
 #include "PowerISR.h"
+#include "../comms/Communications.h"
 
 
 
@@ -15,16 +16,15 @@ void Power::isr()
     current_index = (current_index + 1) % POWER_NUM_READINGS;
 }
 
-void Power::init(StateService &state) 
+void Power::init() 
 {
     // Zero the readings
     //memset(&readings, 0, sizeof(readings)*POWER_NUM_READINGS);
-    stateService = &state;
     current_index = 0;
     power_timer = 0;
     ina219.begin();
     update_rate_ms = POWER_DEFAULT_UPDATE_RATE_MS;
-    Timer3.initialize();
+    Timer3.initialize(500000);
     Timer3.attachInterrupt(powerISRWrapper);
 }
 

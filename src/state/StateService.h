@@ -1,8 +1,16 @@
 #ifndef STATE
-#define STATE
+#define STATE 1
+#include "Arduino.h"
 
 class StateService {
+    StateService() {
+
+    };
     public:
+    static StateService& instance() {
+        static StateService INSTANCE;
+        return INSTANCE;
+    }
     // NO REAL THOUGHT IS PUT INTO WHAT THESE ACTUALLY ARE YET, JUST QUICK FROM THE EXISTING ISRs + SOME IMAGINATION
     // There are better ways to do this where we split these catagories up into classes themselves but w/e
     // NOTICE THESE ARE ALL CURRENTLY PUBLIC
@@ -45,13 +53,14 @@ class StateService {
     String navigationMode;
     double navigationDestinationDecimalDegrees;
 
-    StateService(); // this constructor will be quite complicated as it needs to know
+    //StateService(); // this constructor will be quite complicated as it needs to know
                     // whether it is recovering from a problem or being freshly deployed.
                     // it will want to try and recover from a copy stored in file storage.
                     
-    bool storeState();  // which brings us to this, which will be used to store the state to fs.
+    //bool storeState();  // which brings us to this, which will be used to store the state to fs.
 
 };
+
 
 
 #endif

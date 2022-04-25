@@ -1,10 +1,10 @@
 #ifndef POWER_ISR
-#define POWER_ISR
+#define POWER_ISR 1
 
-#include "../state/globalObjs.h"
+#include "power.h"
 
 void powerISRWrapper() {
-    power.isr();
+    Power::instance().isr();
 };
 
 #endif

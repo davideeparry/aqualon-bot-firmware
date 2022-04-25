@@ -1,30 +1,35 @@
 #ifndef COMMUNICATIONS
-#define COMMUNICATIONS
-#include "../msgs/messageHandler.h"
-#include "../msgs/message.h"
-#include "../msgs/errorStrings.h"
+#define COMMUNICATIONS 1
+#include "../msgs/ErrorStrings.h"
 #include "../state/StateService.h"
 #include "Arduino.h"
 #include "HardwareSerial.h"
-
-
+#include "../msgs/messageHandler.h"
+#include "../msgs/Message.h"
 
 class Communications
 {
-    const int recBufferSize = 256;
-    HardwareSerial4 serialPort;
+    static const int recBufferSize = 256;
+    char recBuffer[recBufferSize];
+    int index;
+    //HardwareSerial4 serialPort; // This is for when the radio is here
+    HardwareSerial2 *serialPort;
     const int interruptPin = 12;
     ErrorStrings errorStrings;
-    StateService* stateService;
+    Communications(){};
 
-    public:
+  public:
+    static Communications &instance()
+    {
+        static Communications INSTANCE;
+        return INSTANCE;
+    }
     int getMaxSerialMsgSize();
-    void init(StateService &stateService);
+    void init(HardwareSerial2 &serial);
     void isr();
-    //void receiveMsg(); ISR FUNCTION NEEDS TO BE NOT A CLASS FUNCTION
     void sendError(String errorMsg);
-    void sendMessage(message msg);
-    void read(char recBuffer[], int &index);
+    void sendMessage(Message msg);
+    void read();
     void sendSuccess(String uuid);
 };
 
